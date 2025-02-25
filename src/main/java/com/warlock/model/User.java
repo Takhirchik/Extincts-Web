@@ -15,10 +15,17 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "nickname", nullable = false)
     private String nickname;
+    @Column(name = "login", nullable = false, unique = true)
     private String login;
+    @Column(name = "password", nullable = false)
     private String password;
+    @Column(name = "email", nullable = false)
     private String email;
+
+    @OneToOne
+    @JoinColumn(name = "role_id", foreign_key = "fk_users_roles_id")
     private String role_id;
 
     public User(){
@@ -78,5 +85,17 @@ public class User {
 
     public void setRoleId(String role_id) {
         this.role_id = role_id;
+    }
+
+    @Override
+    public String toString(){
+        return "User{" +
+                "id=" + id +
+                ", nickname=" + nickname +
+                ", login=" + login +
+                ", password=" + password +
+                ", email=" + email +
+                ", role_id=" + role_id +
+                "}";
     }
 }
