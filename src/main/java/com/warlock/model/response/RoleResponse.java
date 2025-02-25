@@ -1,4 +1,4 @@
-package com.warlock.model.request;
+package com.warlock.model.response;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
