@@ -9,5 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface StandCategoryRepository extends JpaRepository<StandCategory, Long>{
-    Optional<StandCategory> findByName(String standName);
+    Optional<StandCategory> findByCategoryName(String categoryName);
 }

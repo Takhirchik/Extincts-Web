@@ -51,7 +51,7 @@ public class StandServiceImpl implements StandService {
     @Transactional
     public @NonNull StandResponse createStand(@NonNull CreateStandRequest request) {
         String categoryName = request.getStandCategory().getCategoryName();
-        StandCategory standCategory = standCategoryRepository.findByName(categoryName)
+        StandCategory standCategory = standCategoryRepository.findByCategoryName(categoryName)
                 .orElseThrow(() -> new EntityNotFoundException("Category " + categoryName + " is not found"));
         Stand stand = buildStandRequest(request, standCategory);
         return buildStandResponse(standRepository.save(stand));
@@ -66,7 +66,7 @@ public class StandServiceImpl implements StandService {
         standUpdate(stand, request);
         if (stand.getStandCategory() != null){
             String categoryName = stand.getStandCategory().getCategoryName();
-            StandCategory standCategory = standCategoryRepository.findByName(categoryName)
+            StandCategory standCategory = standCategoryRepository.findByCategoryName(categoryName)
                     .orElseThrow(() -> new EntityNotFoundException(("Category " + categoryName + " is not found")));
             stand.setStandCategory(standCategory);
         }
