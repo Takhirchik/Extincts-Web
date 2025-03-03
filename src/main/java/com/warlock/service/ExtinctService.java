@@ -14,7 +14,7 @@ public interface ExtinctService {
     ExtinctResponse findById(@NonNull Long extinctId);
 
     @NonNull
-    ExtinctResponse createStand(@NonNull CreateExtinctRequest request);
+    ExtinctResponse createExtinct(@NonNull CreateExtinctRequest request);
 
     @NonNull
     ExtinctResponse update(@NonNull Long extinctId, @NonNull CreateExtinctRequest request);

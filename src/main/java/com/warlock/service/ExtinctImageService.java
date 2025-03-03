@@ -14,7 +14,7 @@ public interface ExtinctImageService {
     ExtinctImageResponse findById(@NonNull Long extinctImageId);
 
     @NonNull
-    ExtinctImageResponse createStand(@NonNull CreateExtinctImageRequest request);
+    ExtinctImageResponse createExtinctImage(@NonNull CreateExtinctImageRequest request);
 
     @NonNull
     ExtinctImageResponse update(@NonNull Long extinctImageId, @NonNull CreateExtinctImageRequest request);
