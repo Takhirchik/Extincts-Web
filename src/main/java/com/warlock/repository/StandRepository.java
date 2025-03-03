@@ -10,5 +10,6 @@ import java.util.List;
 
 @Repository
 public interface StandRepository extends JpaRepository<Stand, Long> {
+    Optional<Stand> findByStandName (String standName);
     List<Stand> findByStandCategoryId (Long standCategoryId);
 }
