@@ -11,5 +11,5 @@ public class CreateUserRequest {
     private String login;
     private String password;
     private String email;
-    private CreateRoleRequest Role;
+    private CreateRoleRequest role;
 }
