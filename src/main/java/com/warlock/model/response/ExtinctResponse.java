@@ -9,5 +9,5 @@ public class ExtinctResponse {
     private Long id;
     private String extinctName;
     private String description;
-    private StandResponse stand;
+    private String standName;
 }
