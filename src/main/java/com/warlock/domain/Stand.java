@@ -14,7 +14,7 @@ import java.util.Objects;
 @Setter
 @Accessors(chain = true)
 @Entity
-@Table(name="users")
+@Table(name="stands")
 public class Stand {
 
     @Id
