@@ -72,8 +72,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User " + userId + " is not found"));
         userUpdate(user, request);
-        if (request.getRole() != null){
-            String roleName = request.getRole().getName();
+        if (user.getRole() != null){
+            String roleName = user.getRole().getName();
             Role role = roleRepository.findByName(roleName)
                     .orElseThrow(() -> new EntityNotFoundException(("Role " + roleName + " is not found")));
             user.setRole(role);
