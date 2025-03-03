@@ -1,0 +1,20 @@
+Создание пользователя без роли
+curl -X POST -H "Content-Type: application/json" -i 'http://localhost:8080/users/create' --data '{"nickname": "user1", "login": "usr1", "password": "pswd", "email": "usr1@example.com"}'
+
+Создание пользователя с ролью админа
+curl -X POST -H "Content-Type: application/json" -i 'http://localhost:8080/users/create' --data '{"nickname": "user2", "login": "usr2", "password": "pswd2", "email": "usr2@example.com", "role": {"name": "admin"}}'
+
+Создание пользователя с ролью пользователя
+curl -X POST -H "Content-Type: application/json" -i 'http://localhost:8080/users/create' --data '{"nickname": "user3", "login": "usr3", "password": "pswd3", "email": "usr3@example.com", "role": {"name": "user"}}'
+
+Найти всех пользователей
+сurl http://localhost:8080/users
+
+Найти пользователя с id 2
+curl http://localhost:8080/users/2
+
+Обновить никнейм пользователя 2
+curl -X PATCH -H "Content-Type: application/json" -i 'http://localhost:8080/users/2' --data '{"nickname": "new_usr2"}'
+
+Удалить пользователя 2
+curl -X DELETE http://localhost:8080/users/2 
