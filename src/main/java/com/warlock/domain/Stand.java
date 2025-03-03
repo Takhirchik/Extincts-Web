@@ -22,7 +22,7 @@ public class Stand {
     private Long id;
 
     @Column(name = "stand_name", nullable = false)
-    private Spring standName;
+    private String standName;
 
     @Column(name = "description")
     private String description;
