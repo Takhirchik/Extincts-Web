@@ -6,7 +6,6 @@ import lombok.experimental.Accessors;
 
 import jakarta.persistence.*;
 import java.util.Objects;
-//import java.util.Set;
 
 @Getter
 @Setter
@@ -21,17 +20,6 @@ public class Role {
 
     @Column(name="name", nullable=false, unique=true)
     private String name;
-
-//    @OneToMany(mappedBy = "role")
-//    private Set<User> users;
-//
-
-//    public Role(){
-//    }
-//
-//    public Role(String name){
-//        this.name = name;
-//    }
 
     @Override
     public boolean equals(Object o) {

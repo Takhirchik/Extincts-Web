@@ -28,7 +28,6 @@ public class StandController {
     }
 
     @PostMapping(value = "/create", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
     public StandResponse create(@RequestBody CreateStandRequest request) {
         return standService.createStand(request);
     }
@@ -38,7 +37,6 @@ public class StandController {
         return standService.update(standId, request);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/{standId}", produces = APPLICATION_JSON_VALUE)
     public void delete(@PathVariable Long standId) {
         standService.delete(standId);

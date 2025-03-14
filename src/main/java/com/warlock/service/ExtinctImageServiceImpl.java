@@ -25,7 +25,6 @@ public class ExtinctImageServiceImpl implements ExtinctImageService {
     private final ExtinctRepository extinctRepository;
 
     @Override
-    @Transactional(readOnly = true)
     public @NonNull List<ExtinctImageResponse> findAll() {
         return extinctImageRepository.findAll()
                 .stream()
@@ -35,7 +34,6 @@ public class ExtinctImageServiceImpl implements ExtinctImageService {
 
     //Получаем пользователя по id
     @Override
-    @Transactional(readOnly = true)
     public @NonNull ExtinctImageResponse findById(@NonNull Long extinctImageId) {
         return extinctImageRepository.findById(extinctImageId)
                 .map(this::buildExtinctImageResponse)
@@ -72,7 +70,6 @@ public class ExtinctImageServiceImpl implements ExtinctImageService {
 
     //Удаляем пользователя по id
     @Override
-    @Transactional
     public void delete(@NonNull Long extinctImageId) {
         extinctImageRepository.deleteById(extinctImageId);
     }

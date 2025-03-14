@@ -30,7 +30,6 @@ public class UserController {
     }
 
     @PostMapping(value = "/create", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
     public UserResponse create(@RequestBody CreateUserRequest request) {
         return userService.createUser(request);
     }
@@ -40,8 +39,6 @@ public class UserController {
         return userService.update(userId, request);
     }
 
-    //Удаляем пользователя по id
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/{userId}", produces = APPLICATION_JSON_VALUE)
     public void delete(@PathVariable Long userId) {
         userService.delete(userId);

@@ -26,7 +26,6 @@ public class ExtinctServiceImpl implements ExtinctService{
 
     //Получаем весь список пользователей
     @Override
-    @Transactional(readOnly = true)
     public @NonNull List<ExtinctResponse> findAll() {
         return extinctRepository.findAll()
                 .stream()
@@ -36,7 +35,6 @@ public class ExtinctServiceImpl implements ExtinctService{
 
     //Получаем пользователя по id
     @Override
-    @Transactional(readOnly = true)
     public @NonNull ExtinctResponse findById(@NonNull Long extinctId) {
         return extinctRepository.findById(extinctId)
                 .map(this::buildExtinctResponse)
@@ -72,7 +70,6 @@ public class ExtinctServiceImpl implements ExtinctService{
 
     //Удаляем пользователя по id
     @Override
-    @Transactional
     public void delete(@NonNull Long extinctId) {
         extinctRepository.deleteById(extinctId);
     }

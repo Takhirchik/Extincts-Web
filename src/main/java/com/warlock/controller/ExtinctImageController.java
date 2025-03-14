@@ -28,7 +28,6 @@ public class ExtinctImageController {
     }
 
     @PostMapping(value = "/create", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
     public ExtinctImageResponse create(@RequestBody CreateExtinctImageRequest request) {
         return extinctImageService.createExtinctImage(request);
     }
@@ -38,7 +37,6 @@ public class ExtinctImageController {
         return extinctImageService.update(extinctImageId, request);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/{extinctImageId}", produces = APPLICATION_JSON_VALUE)
     public void delete(@PathVariable Long extinctImageId) {
         extinctImageService.delete(extinctImageId);

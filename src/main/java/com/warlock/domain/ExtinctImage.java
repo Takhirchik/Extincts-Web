@@ -17,7 +17,7 @@ public class ExtinctImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "url_image")
+    @Column(name = "url_image", nullable = false)
     private String urlImage;
 
     @ManyToOne

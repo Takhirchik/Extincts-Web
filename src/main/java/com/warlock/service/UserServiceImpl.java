@@ -30,7 +30,6 @@ public class UserServiceImpl implements UserService {
 
     //Получаем весь список пользователей
     @Override
-    @Transactional(readOnly = true)
     public @NonNull List<UserResponse> findAll() {
         return userRepository.findAll()
                 .stream()
@@ -40,7 +39,6 @@ public class UserServiceImpl implements UserService {
 
     //Получаем пользователя по id
     @Override
-    @Transactional(readOnly = true)
     public @NonNull UserResponse findById(@NonNull Long userId) {
         return userRepository.findById(userId)
                 .map(this::buildUserResponse)
@@ -54,12 +52,12 @@ public class UserServiceImpl implements UserService {
         Role role;
         if (request.getRole() == null){
             role = roleRepository.findByName(DEFAULT_ROLE)
-                    .orElseThrow(() -> new EntityNotFoundException("Role user not found"));
+                    .orElseThrow(() -> new EntityNotFoundException("Role " + DEFAULT_ROLE + " is not found"));
         } else{
             String roleName = request.getRole().getName();
             role = roleRepository.findByName(roleName)
                     .orElseThrow(() ->
-                            new EntityNotFoundException("Role " + roleName + " not found"));
+                            new EntityNotFoundException("Role " + roleName + " is not found"));
         }
         User user = buildUserRequest(request, role);
         return buildUserResponse(userRepository.save(user));
@@ -83,7 +81,6 @@ public class UserServiceImpl implements UserService {
 
     //Удаляем пользователя по id
     @Override
-    @Transactional
     public void delete(@NonNull Long userId) {
         userRepository.deleteById(userId);
     }

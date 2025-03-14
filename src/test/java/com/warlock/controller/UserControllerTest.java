@@ -60,7 +60,7 @@ class UserControllerTest {
         mockMvc.perform(post("/users/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.nickname").value("user1"))
                 .andExpect(jsonPath("$.login").value("user_login1"))
@@ -102,7 +102,7 @@ class UserControllerTest {
         mockMvc.perform(post("/users/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(2L))
                 .andExpect(jsonPath("$.nickname").value("user2"))
                 .andExpect(jsonPath("$.login").value("user_login2"))
@@ -194,7 +194,7 @@ class UserControllerTest {
 
         // Выполняем DELETE-запрос
         mockMvc.perform(delete("/users/{id}", userId))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
 
         // Проверяем, что сервис был вызван
         verify(userService, times(1)).delete(userId);

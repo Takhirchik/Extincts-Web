@@ -25,11 +25,8 @@ public class StandServiceImpl implements StandService {
     private final StandRepository standRepository;
     private final StandCategoryRepository standCategoryRepository;
 
-//    private static final String DEFAULT_ROLE = "user";
-
     //Получаем весь список пользователей
     @Override
-    @Transactional(readOnly = true)
     public @NonNull List<StandResponse> findAll() {
         return standRepository.findAll()
                 .stream()
@@ -39,7 +36,6 @@ public class StandServiceImpl implements StandService {
 
     //Получаем пользователя по id
     @Override
-    @Transactional(readOnly = true)
     public @NonNull StandResponse findById(@NonNull Long standId) {
         return standRepository.findById(standId)
                 .map(this::buildStandResponse)
@@ -75,7 +71,6 @@ public class StandServiceImpl implements StandService {
 
     //Удаляем пользователя по id
     @Override
-    @Transactional
     public void delete(@NonNull Long standId) {
         standRepository.deleteById(standId);
     }

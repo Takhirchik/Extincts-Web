@@ -30,17 +30,6 @@ public class User {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-//    public User(){
-//    }
-//
-//    public User(String nickname, String login, String password, String email, Role role){
-//        this.nickname = nickname;
-//        this.login = login;
-//        this.password = password;
-//        this.email = email;
-//        this.role = role;
-//    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -28,7 +28,6 @@ public class ExtinctController {
     }
 
     @PostMapping(value = "/create", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
     public ExtinctResponse create(@RequestBody CreateExtinctRequest request) {
         return extinctService.createExtinct(request);
     }
@@ -38,7 +37,6 @@ public class ExtinctController {
         return extinctService.update(extinctId, request);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/{extinctId}", produces = APPLICATION_JSON_VALUE)
     public void delete(@PathVariable Long extinctId) {
         extinctService.delete(extinctId);
