@@ -1,11 +1,11 @@
 FROM maven:3.9.9-sapmachine-21 AS build
 WORKDIR /extincts-web
-COPY src ./src
 COPY pom.xml .
-
-RUN mvn clean package
+RUN mvn --fail-never verify
+COPY src src
+RUN mvn -T 10C package
 
 FROM sapmachine:21-jre-alpine
-WORKDIR /extincts-web
-COPY --from=build ./target/*.jar ./extincts-web-1.0-SNAPSHOT.jar
-CMD ["java", "-jar", "/extincts-web/extincts-web-1.0-SNAPSHOT.jar"]
+COPY --from=build /extincts-web/target/*.jar /extincts-web/*.jar
+EXPOSE 8181
+ENTRYPOINT ["java", "-jar", "/extincts-web/*.jar"]

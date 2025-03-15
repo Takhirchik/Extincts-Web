@@ -74,6 +74,11 @@
       <artifactId>commons-lang3</artifactId>
     </dependency>
 
+    <!--LIQUIBASE-->
+    <dependency>
+      <groupId>org.liquibase</groupId>
+      <artifactId>liquibase-core</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
