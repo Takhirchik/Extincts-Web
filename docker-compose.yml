@@ -1,9 +1,10 @@
 services:
   extincts-web-backend:
-#    image: extincts:1.0-SNAPSHOT
+    image: extincts:1.0-SNAPSHOT
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: extincts-web-backend
     ports:
       - "8181:8181"
     depends_on:
@@ -15,6 +16,7 @@ services:
 
   postgres-db:
     image: postgres:latest
+    container_name: postgres-db
     environment:
       POSTGRES_DB: extincts-web-db
       POSTGRES_USER: extinct-user
