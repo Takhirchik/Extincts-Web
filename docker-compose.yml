@@ -1,29 +1,28 @@
-version: '3.8'
 services:
-  extincts-web:
-    image: extincts:latest
+  extincts-web-backend:
+#    image: extincts:1.0-SNAPSHOT
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "8181:8181"
     depends_on:
-      - postgres
+      - postgres-db
     environment:
       SERVER_PORT: 8181
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/extincts-web-db
-  postgres:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/extincts-web-db
+
+  postgres-db:
     image: postgres:latest
     environment:
       POSTGRES_DB: extincts-web-db
       POSTGRES_USER: extinct-user
       POSTGRES_PASSWORD: gfg
-      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - postgres_volume:/var/lib/postgresql/data
-      - ./src/main/resources/db/init-scripts:/docker-entrypoint-initdb.d
+      - postgres-db_volume:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     restart: unless-stopped
 volumes:
-  postgres_volume:
+  postgres-db_volume:
