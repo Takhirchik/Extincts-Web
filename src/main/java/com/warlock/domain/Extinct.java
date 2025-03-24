@@ -1,5 +1,6 @@
 package com.warlock.domain;
 
+import com.warlock.domain.common.BaseDomain;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -14,11 +15,7 @@ import java.util.Objects;
 @Accessors(chain = true)
 @Entity
 @Table(name="extincts")
-public class Extinct {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+public class Extinct extends BaseDomain {
     @Column(name = "extinct_name", nullable = false)
     private String extinctName;
 
@@ -28,6 +25,10 @@ public class Extinct {
     @ManyToOne
     @JoinColumn(name = "stand_id", nullable = false)
     private Stand stand;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @OneToMany(mappedBy = "extinct", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ExtinctImage> extinctImages;
@@ -48,8 +49,7 @@ public class Extinct {
     @Override
     public String toString(){
         return "Extinct{" +
-                "id=" + this.id +
-                ", extinctName=" + this.extinctName +
+                "extinctName=" + this.extinctName +
                 ", description=" + this.description +
                 ", stand=" + this.stand +
                 "}";

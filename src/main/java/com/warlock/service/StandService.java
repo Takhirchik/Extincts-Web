@@ -1,23 +1,22 @@
 package com.warlock.service;
 
-import com.warlock.model.response.StandResponse;
-import com.warlock.model.request.CreateStandRequest;
+import com.warlock.domain.Stand;
 import lombok.NonNull;
 
 import java.util.List;
 
 public interface StandService {
     @NonNull
-    List<StandResponse> findAll();
+    List<Stand> findAll();
 
     @NonNull
-    StandResponse findById(@NonNull Long standId);
+    Stand findById(@NonNull Long standId);
 
     @NonNull
-    StandResponse createStand(@NonNull CreateStandRequest request);
+    Stand createStand(@NonNull Stand request);
 
     @NonNull
-    StandResponse update(@NonNull Long standId, @NonNull CreateStandRequest request);
+    Stand update(@NonNull Long standId, @NonNull Stand request);
 
     void delete(@NonNull Long standId);
 }

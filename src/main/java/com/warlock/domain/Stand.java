@@ -1,5 +1,7 @@
 package com.warlock.domain;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.warlock.domain.common.BaseDomain;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -15,11 +17,7 @@ import java.util.Objects;
 @Accessors(chain = true)
 @Entity
 @Table(name="stands")
-public class Stand {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Stand extends BaseDomain {
 
     @Column(name = "stand_name", nullable = false)
     private String standName;
@@ -33,6 +31,10 @@ public class Stand {
 
     @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Extinct> extincts;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Override
     public boolean equals(Object o) {
@@ -49,9 +51,8 @@ public class Stand {
 
     @Override
     public String toString(){
-        return "StandCategory{" +
-                "id=" + this.id +
-                ", stand_name" + this.standName +
+        return "Stand{" +
+                "stand_name" + this.standName +
                 ", description=" + this.description +
                 ", stand_category=" + this.standCategory +
                 "}";

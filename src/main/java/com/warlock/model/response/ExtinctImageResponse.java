@@ -8,5 +8,5 @@ import lombok.experimental.Accessors;
 public class ExtinctImageResponse {
     private Long id;
     private String urlImage;
-    private Long extinct_id;
+    private Long extinctId;
 }

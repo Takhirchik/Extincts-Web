@@ -12,6 +12,6 @@
     <include file="2025.03.16--06-create_changeset_stands_table.xml" relativeToChangelogFile="true"/>
     <include file="2025.03.16--07-create_changeset_extincts_table.xml" relativeToChangelogFile="true"/>
     <include file="2025.03.16--08-create_changeset_extincts_images_table.xml" relativeToChangelogFile="true"/>
-
-
+    <include file="2025.03.24--01-alter_changeset_stands_table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.03.24--02-alter_changeset_extincts_table.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

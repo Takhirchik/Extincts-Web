@@ -6,16 +6,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.warlock.domain.Role;
 import com.warlock.domain.User;
-import com.warlock.model.request.CreateRoleRequest;
-import com.warlock.model.request.CreateUserRequest;
-import com.warlock.model.response.RoleResponse;
-import com.warlock.model.response.UserResponse;
 import com.warlock.repository.UserRepository;
 import com.warlock.repository.RoleRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 
@@ -30,27 +25,23 @@ public class UserServiceImpl implements UserService {
 
     //Получаем весь список пользователей
     @Override
-    public @NonNull List<UserResponse> findAll() {
-        return userRepository.findAll()
-                .stream()
-                .map(this::buildUserResponse)
-                .collect(Collectors.toList());
+    public @NonNull List<User> findAll() {
+        return userRepository.findAll();
     }
 
     //Получаем пользователя по id
     @Override
-    public @NonNull UserResponse findById(@NonNull Long userId) {
+    public @NonNull User findById(@NonNull Long userId) {
         return userRepository.findById(userId)
-                .map(this::buildUserResponse)
                 .orElseThrow(() -> new EntityNotFoundException("User " + userId + " is not found"));
     }
 
     //Создаем пользователя
     @Override
     @Transactional
-    public @NonNull UserResponse createUser(@NonNull CreateUserRequest request) {
+    public @NonNull User createUser(@NonNull User request) {
         Role role;
-        if (request.getRole() == null){
+        if (request.getRole().getName() == null){
             role = roleRepository.findByName(DEFAULT_ROLE)
                     .orElseThrow(() -> new EntityNotFoundException("Role " + DEFAULT_ROLE + " is not found"));
         } else{
@@ -59,24 +50,18 @@ public class UserServiceImpl implements UserService {
                     .orElseThrow(() ->
                             new EntityNotFoundException("Role " + roleName + " is not found"));
         }
-        User user = buildUserRequest(request, role);
-        return buildUserResponse(userRepository.save(user));
+        request.setRole(role);
+        return userRepository.save(request);
     }
 
     //Обновляем пользователя по id
     @Override
     @Transactional
-    public @NonNull UserResponse update(@NonNull Long userId, @NonNull CreateUserRequest request) {
+    public @NonNull User update(@NonNull Long userId, @NonNull User request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User " + userId + " is not found"));
         userUpdate(user, request);
-        if (user.getRole() != null){
-            String roleName = user.getRole().getName();
-            Role role = roleRepository.findByName(roleName)
-                    .orElseThrow(() -> new EntityNotFoundException(("Role " + roleName + " is not found")));
-            user.setRole(role);
-        }
-        return buildUserResponse(userRepository.save(user));
+        return userRepository.save(user);
     }
 
     //Удаляем пользователя по id
@@ -85,36 +70,11 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(userId);
     }
 
-    private UserResponse buildUserResponse(@NonNull User user) {
-        return new UserResponse()
-                .setId(user.getId())
-                .setNickname(user.getNickname())
-                .setLogin(user.getLogin())
-                .setPassword(user.getPassword())
-                .setEmail(user.getEmail())
-                .setRole(new RoleResponse()
-                        .setId(user.getRole().getId())
-                        .setName(user.getRole().getName()));
-    }
-
-    private User buildUserRequest(@NonNull CreateUserRequest request, @NonNull Role role) {
-        return new User()
-                .setNickname(request.getNickname())
-                .setLogin(request.getLogin())
-                .setPassword(request.getPassword())
-                .setEmail(request.getEmail())
-                .setRole(role);
-    }
-
-    private void userUpdate(@NonNull User user, @NonNull CreateUserRequest request) {
+    private void userUpdate(@NonNull User user, @NonNull User request) {
         ofNullable(request.getNickname()).map(user::setNickname);
         ofNullable(request.getLogin()).map(user::setLogin);
         ofNullable(request.getPassword()).map(user::setPassword);
         ofNullable(request.getEmail()).map(user::setEmail);
-
-        CreateRoleRequest roleRequest = request.getRole();
-        if (roleRequest != null) {
-            ofNullable(roleRequest.getName()).map(user.getRole()::setName);
-        }
+        ofNullable(request.getRole()).map(user::setRole);
     }
 }

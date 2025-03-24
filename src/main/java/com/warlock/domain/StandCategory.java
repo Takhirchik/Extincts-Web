@@ -1,5 +1,6 @@
 package com.warlock.domain;
 
+import com.warlock.domain.common.BaseDomain;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -12,11 +13,7 @@ import java.util.Objects;
 @Accessors(chain = true)
 @Entity
 @Table(name="stand_categories")
-public class StandCategory {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class StandCategory extends BaseDomain {
 
     @Column(name="category_name", nullable=false, unique=true)
     private String categoryName;
@@ -37,8 +34,7 @@ public class StandCategory {
     @Override
     public String toString(){
         return "StandCategory{" +
-                "id=" + this.id +
-                ", category_name=" + this.categoryName +
+                "category_name=" + this.categoryName +
                 "}";
     }
 }

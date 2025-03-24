@@ -9,5 +9,6 @@ public class StandResponse {
     private Long id;
     private String standName;
     private String description;
+    private String userNickname;
     private StandCategoryResponse standCategory;
 }

@@ -1,5 +1,6 @@
 package com.warlock.domain;
 
+import com.warlock.domain.common.BaseDomain;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -12,10 +13,7 @@ import java.util.Objects;
 @Accessors(chain = true)
 @Entity
 @Table(name="extincts_images")
-public class ExtinctImage {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class ExtinctImage extends BaseDomain {
 
     @Column(name = "url_image", nullable = false)
     private String urlImage;
@@ -40,8 +38,7 @@ public class ExtinctImage {
     @Override
     public String toString(){
         return "Extinct{" +
-                "id=" + this.id +
-                ", url_image=" + this.urlImage +
+                "url_image=" + this.urlImage +
                 "}";
     }
 }

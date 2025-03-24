@@ -1,23 +1,22 @@
 package com.warlock.service;
 
-import com.warlock.model.request.CreateUserRequest;
-import com.warlock.model.response.UserResponse;
+import com.warlock.domain.User;
 import lombok.NonNull;
 
 import java.util.List;
 
 public interface UserService {
     @NonNull
-    List<UserResponse> findAll();
+    List<User> findAll();
 
     @NonNull
-    UserResponse findById(@NonNull Long userId);
+    User findById(@NonNull Long userId);
 
     @NonNull
-    UserResponse createUser(@NonNull CreateUserRequest request);
+    User createUser(@NonNull User request);
 
     @NonNull
-    UserResponse update(@NonNull Long userId, @NonNull CreateUserRequest request);
+    User update(@NonNull Long userId, @NonNull User request);
 
     void delete(@NonNull Long userId);
 }

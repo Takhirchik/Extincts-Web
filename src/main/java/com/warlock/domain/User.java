@@ -1,5 +1,6 @@
 package com.warlock.domain;
 
+import com.warlock.domain.common.BaseDomain;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -12,11 +13,7 @@ import java.util.Objects;
 @Accessors(chain = true)
 @Entity
 @Table(name="users")
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+public class User extends BaseDomain {
     @Column(name = "nickname", nullable = false)
     private String nickname;
     @Column(name = "login", nullable = false, unique = true)
@@ -46,8 +43,7 @@ public class User {
     @Override
     public String toString(){
         return "User{" +
-                "id=" + this.id +
-                ", nickname=" + this.nickname +
+                "nickname=" + this.nickname +
                 ", login=" + this.login +
                 ", password=" + this.password +
                 ", email=" + this.email +

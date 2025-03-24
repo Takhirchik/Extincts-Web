@@ -8,5 +8,6 @@ import lombok.experimental.Accessors;
 public class CreateExtinctRequest {
     private String extinctName;
     private String description;
-    private String standName;
+    private Long userId;
+    private Long standId;
 }

@@ -1,23 +1,22 @@
 package com.warlock.service;
 
-import com.warlock.model.request.CreateExtinctRequest;
-import com.warlock.model.response.ExtinctResponse;
+import com.warlock.domain.Extinct;
 import lombok.NonNull;
 
 import java.util.List;
 
 public interface ExtinctService {
     @NonNull
-    List<ExtinctResponse> findAll();
+    List<Extinct> findAll();
 
     @NonNull
-    ExtinctResponse findById(@NonNull Long extinctId);
+    Extinct findById(@NonNull Long extinctId);
 
     @NonNull
-    ExtinctResponse createExtinct(@NonNull CreateExtinctRequest request);
+    Extinct createExtinct(@NonNull Extinct request);
 
     @NonNull
-    ExtinctResponse update(@NonNull Long extinctId, @NonNull CreateExtinctRequest request);
+    Extinct update(@NonNull Long extinctId, @NonNull Extinct request);
 
     void delete(@NonNull Long extinctId);
 }

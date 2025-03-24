@@ -2,22 +2,23 @@ package com.warlock.service;
 
 import com.warlock.model.request.CreateExtinctImageRequest;
 import com.warlock.model.response.ExtinctImageResponse;
+import com.warlock.domain.ExtinctImage;
 import lombok.NonNull;
 
 import java.util.List;
 
 public interface ExtinctImageService {
     @NonNull
-    List<ExtinctImageResponse> findAll();
+    List<ExtinctImage> findAll();
 
     @NonNull
-    ExtinctImageResponse findById(@NonNull Long extinctImageId);
+    ExtinctImage findById(@NonNull Long extinctImageId);
 
     @NonNull
-    ExtinctImageResponse createExtinctImage(@NonNull CreateExtinctImageRequest request);
+    ExtinctImage createExtinctImage(@NonNull ExtinctImage request);
 
     @NonNull
-    ExtinctImageResponse update(@NonNull Long extinctImageId, @NonNull CreateExtinctImageRequest request);
+    ExtinctImage update(@NonNull Long extinctImageId, @NonNull ExtinctImage request);
 
     void delete(@NonNull Long extinctImageId);
 }

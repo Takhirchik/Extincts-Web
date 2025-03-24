@@ -7,5 +7,5 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class CreateExtinctImageRequest {
     private String urlImage;
-    private Long extinct_id;
+    private Long extinctId;
 }

@@ -9,5 +9,6 @@ public class ExtinctResponse {
     private Long id;
     private String extinctName;
     private String description;
+    private String userNickname;
     private String standName;
 }

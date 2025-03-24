@@ -1,5 +1,6 @@
 package com.warlock.domain;
 
+import com.warlock.domain.common.BaseDomain;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -12,11 +13,7 @@ import java.util.Objects;
 @Accessors(chain = true)
 @Entity
 @Table(name="roles")
-public class Role {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Role extends BaseDomain {
 
     @Column(name="name", nullable=false, unique=true)
     private String name;
@@ -37,8 +34,7 @@ public class Role {
     @Override
     public String toString(){
         return "Role{" +
-                "id=" + this.id +
-                ", name=" + this.name +
+                "name=" + this.name +
                 "}";
     }
 }
