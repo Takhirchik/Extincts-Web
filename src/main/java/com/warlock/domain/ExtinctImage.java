@@ -18,7 +18,7 @@ public class ExtinctImage extends BaseDomain {
     @Column(name = "url_image", nullable = false)
     private String urlImage;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "extinct_id", nullable = false)
     private Extinct extinct;
 
@@ -37,7 +37,7 @@ public class ExtinctImage extends BaseDomain {
 
     @Override
     public String toString(){
-        return "Extinct{" +
+        return "ExtinctImage{" +
                 "url_image=" + this.urlImage +
                 "}";
     }

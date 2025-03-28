@@ -1,6 +1,5 @@
 package com.warlock.domain;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
 import com.warlock.domain.common.BaseDomain;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +7,8 @@ import lombok.experimental.Accessors;
 
 import jakarta.persistence.*;
 
-import javax.swing.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,28 +25,38 @@ public class Stand extends BaseDomain {
     @Column(name = "description")
     private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "stand_category_id", nullable = false)
-    private StandCategory standCategory;
+    @Column(name = "views")
+    private Integer views = 0;
 
-    @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column(name = "created_at", updatable = false)
+    private LocalDate createdAt = LocalDate.now();
+
+    @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Extinct> extincts;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private User creator;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "cover_image_id")
+    private ExtinctImage coverImage;
+
+    @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StandStats> standStats = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Stand stand = (Stand) o;
-        return standName.equals(stand.standName) && description.equals(stand.description);
+        return standName.equals(stand.standName) && description.equals(stand.description) &&
+                createdAt.equals(stand.createdAt) && creator.equals(stand.creator);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(standName, description);
+        return Objects.hash(standName, description, createdAt, creator);
     }
 
     @Override
@@ -54,7 +64,9 @@ public class Stand extends BaseDomain {
         return "Stand{" +
                 "stand_name" + this.standName +
                 ", description=" + this.description +
-                ", stand_category=" + this.standCategory +
+                ", views=" + this.views +
+                ", createdAt=" + this.createdAt +
+                ", creator=" + this.creator +
                 "}";
     }
 }
