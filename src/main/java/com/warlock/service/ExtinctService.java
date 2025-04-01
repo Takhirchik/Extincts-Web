@@ -19,4 +19,8 @@ public interface ExtinctService {
     Extinct update(@NonNull Long extinctId, @NonNull Extinct request);
 
     void delete(@NonNull Long extinctId);
+
+    void incrementViews(@NonNull Long extinctId);
+
+    void incrementLikes(@NonNull Long extinctId);
 }

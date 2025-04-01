@@ -1,5 +1,6 @@
 package com.warlock.service;
 
+import com.warlock.domain.Role;
 import com.warlock.domain.User;
 import lombok.NonNull;
 
@@ -19,4 +20,7 @@ public interface UserService {
     User update(@NonNull Long userId, @NonNull User request);
 
     void delete(@NonNull Long userId);
+
+    @NonNull
+    User assignRole(@NonNull Long userId, @NonNull Role role);
 }

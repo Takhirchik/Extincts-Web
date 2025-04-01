@@ -38,10 +38,6 @@ public class Stand extends BaseDomain {
     @JoinColumn(name = "user_id", nullable = false)
     private User creator;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "cover_image_id")
-    private ExtinctImage coverImage;
-
     @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StandStats> standStats = new ArrayList<>();
 

@@ -12,4 +12,17 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: PATH_PATTERN_PARSER
+  minio:
+    url: http://localhost:9000
+    access-key: admin
+    secret-key: password
+    bucket: uploads
 
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql:
+              BasicBinder=TRACE:

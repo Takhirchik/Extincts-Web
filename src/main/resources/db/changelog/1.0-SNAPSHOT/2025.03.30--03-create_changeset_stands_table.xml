@@ -12,9 +12,22 @@
                 <constraints nullable="false"/>
             </column>
             <column name="description" type="text"/>
-            <column name="stand_category_id" type="bigint">
-                <constraints foreignKeyName="stand_stand_category_id_stand_categories_id" references="stand_categories(id)"/>
+            <column name="views" type="int" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="date" defaultValue="CURRENT_DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creator_id" type="bigint">
+                <constraints nullable="false"/>
             </column>
         </createTable>
+        <addForeignKeyConstraint
+                baseTableName="stands"
+                baseColumnNames="creator_id"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                constraintName="fk_stand_creator"
+                onDelete="CASCADE"/>
     </changeSet>
 </databaseChangeLog>

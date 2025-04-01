@@ -34,16 +34,26 @@ public class Extinct extends BaseDomain {
     @Column(name = "created_at", updatable = false)
     private LocalDate createdAt = LocalDate.now();
 
+    @Column(name = "url_image", nullable = false)
+    private String urlImage;
+
+    // Миниатюры
+    @Column(name = "small_thumbnail_url", nullable = false)
+    private String smallThumbnailUrl;
+
+    @Column(name = "medium_thumbnail_url", nullable = false)
+    private String mediumThumbnailUrl;
+
+    @Column(name = "large_thumbnail_url", nullable = false)
+    private String largeThumbnailUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "stand_id")
     private Stand stand;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
-
-    @OneToMany(mappedBy = "extinct", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ExtinctImage> extinctImages = new ArrayList<>();
 
     @OneToMany(mappedBy = "extinct", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ExtinctStats> extinctStats = new ArrayList<>();

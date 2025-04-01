@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="add_ts_vectors" author="takhirchik">
+        <addColumn tableName="stands">
+            <column name="search_vector" type="tsvector"/>
+        </addColumn>
+        <addColumn tableName="extincts">
+            <column name="search_vector" type="tsvector"/>
+        </addColumn>
+        <addColumn tableName="users">
+            <column name="search_vector" type="tsvector"/>
+        </addColumn>
+
+        <createIndex tableName="stands" indexName="idx_stand_search_vector">
+            <column name="search_vector" type="tsvector"/>
+        </createIndex>
+        <createIndex tableName="extincts" indexName="idx_extinct_search_vector">
+            <column name="search_vector" type="tsvector"/>
+        </createIndex>
+        <createIndex tableName="users" indexName="idx_user_search_vector">
+            <column name="search_vector" type="tsvector"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

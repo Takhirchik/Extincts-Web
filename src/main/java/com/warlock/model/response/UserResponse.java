@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 public class UserResponse {
     private Long id;
     private String nickname;
+    private String bio;
     private String email;
-    private RoleResponse role;
+    private String url_image;
 }

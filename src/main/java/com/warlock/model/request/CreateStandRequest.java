@@ -8,7 +8,4 @@ import lombok.experimental.Accessors;
 public class CreateStandRequest {
     private String standName;
     private String description;
-    private Long userId;
-    private CreateStandCategoryRequest standCategory;
-
 }

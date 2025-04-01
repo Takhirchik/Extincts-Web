@@ -2,6 +2,7 @@ package com.warlock.service;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.warlock.domain.Role;
@@ -18,7 +19,10 @@ import static java.util.Optional.ofNullable;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    @Autowired
     private final UserRepository userRepository;
+
+    @Autowired
     private final RoleRepository roleRepository;
 
     private static final String DEFAULT_ROLE = "user";
@@ -40,16 +44,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public @NonNull User createUser(@NonNull User request) {
-        Role role;
-        if (request.getRole().getName() == null){
-            role = roleRepository.findByName(DEFAULT_ROLE)
+        Role role = roleRepository.findByName(DEFAULT_ROLE)
                     .orElseThrow(() -> new EntityNotFoundException("Role " + DEFAULT_ROLE + " is not found"));
-        } else{
-            String roleName = request.getRole().getName();
-            role = roleRepository.findByName(roleName)
-                    .orElseThrow(() ->
-                            new EntityNotFoundException("Role " + roleName + " is not found"));
-        }
         request.setRole(role);
         return userRepository.save(request);
     }
@@ -75,6 +71,19 @@ public class UserServiceImpl implements UserService {
         ofNullable(request.getLogin()).map(user::setLogin);
         ofNullable(request.getPassword()).map(user::setPassword);
         ofNullable(request.getEmail()).map(user::setEmail);
-        ofNullable(request.getRole()).map(user::setRole);
+        ofNullable(request.getBio()).map(user::setBio);
+        ofNullable(request.getUrl_image()).map(user::setUrl_image);
+        ofNullable(request.getSmallThumbnailUrl()).map(user::setSmallThumbnailUrl);
+        ofNullable(request.getMediumThumbnailUrl()).map(user::setMediumThumbnailUrl);
+        ofNullable(request.getLargeThumbnailUrl()).map(user::setLargeThumbnailUrl);
+    }
+
+    @Override
+    @Transactional
+    public @NonNull User assignRole(@NonNull Long userId, @NonNull Role role){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " is not found"));
+        user.setRole(role);
+        return userRepository.save(user);
     }
 }

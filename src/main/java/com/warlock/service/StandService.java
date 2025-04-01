@@ -1,5 +1,6 @@
 package com.warlock.service;
 
+import com.warlock.domain.Extinct;
 import com.warlock.domain.Stand;
 import lombok.NonNull;
 
@@ -19,4 +20,9 @@ public interface StandService {
     Stand update(@NonNull Long standId, @NonNull Stand request);
 
     void delete(@NonNull Long standId);
+
+    void incrementViews(@NonNull Long standId);
+
+    @NonNull
+    List<Extinct> findAllExtincts(@NonNull Stand stand);
 }

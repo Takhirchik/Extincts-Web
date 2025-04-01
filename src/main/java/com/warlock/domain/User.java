@@ -16,12 +16,31 @@ import java.util.Objects;
 public class User extends BaseDomain {
     @Column(name = "nickname", nullable = false)
     private String nickname;
+
+    @Column(name = "bio")
+    private String bio;
+
     @Column(name = "login", nullable = false, unique = true)
     private String login;
+
     @Column(name = "password", nullable = false)
     private String password;
+
     @Column(name = "email", nullable = false, unique = true)
     private String email;
+
+    @Column(name = "avatar_url")
+    private String url_image;
+
+    @Column(name = "small_thumbnail_url", nullable = false)
+    private String smallThumbnailUrl;
+
+    @Column(name = "medium_thumbnail_url", nullable = false)
+    private String mediumThumbnailUrl;
+
+    @Column(name = "large_thumbnail_url", nullable = false)
+    private String largeThumbnailUrl;
+
 
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)

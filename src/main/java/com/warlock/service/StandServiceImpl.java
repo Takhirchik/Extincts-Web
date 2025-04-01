@@ -1,33 +1,31 @@
 package com.warlock.service;
 
-import com.warlock.domain.User;
-import com.warlock.repository.UserRepository;
+import com.warlock.domain.Extinct;
+import com.warlock.repository.ExtinctRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.warlock.domain.StandCategory;
 import com.warlock.domain.Stand;
-import com.warlock.model.request.CreateStandCategoryRequest;
-import com.warlock.model.request.CreateStandRequest;
-import com.warlock.model.response.StandCategoryResponse;
-import com.warlock.model.response.StandResponse;
 import com.warlock.repository.StandRepository;
-import com.warlock.repository.StandCategoryRepository;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import static java.util.Optional.of;
+import java.time.LocalDate;
+import java.util.List;
+
 import static java.util.Optional.ofNullable;
 
 @Service
 @RequiredArgsConstructor
 public class StandServiceImpl implements StandService {
-    private final UserRepository userRepository;
+
+    @Autowired
     private final StandRepository standRepository;
-    private final StandCategoryRepository standCategoryRepository;
+
+    @Autowired
+    private final ExtinctRepository extinctRepository;
 
     //Получаем весь список пользователей
     @Override
@@ -46,6 +44,8 @@ public class StandServiceImpl implements StandService {
     @Override
     @Transactional
     public @NonNull Stand createStand(@NonNull Stand request) {
+        request.setCreatedAt(LocalDate.now());
+        request.setViews(0);
         return standRepository.save(request);
     }
 
@@ -69,7 +69,19 @@ public class StandServiceImpl implements StandService {
     private void standUpdate(@NonNull Stand stand, @NonNull Stand request) {
         ofNullable(request.getStandName()).map(stand::setStandName);
         ofNullable(request.getDescription()).map(stand::setDescription);
-        ofNullable(request.getUser()).map(stand::setUser);
-        ofNullable(request.getStandCategory()).map(stand::setStandCategory);
+    }
+
+    @Override
+    @Transactional
+    public void incrementViews(@NonNull Long standId){
+        Stand stand = standRepository.findById(standId)
+                .orElseThrow(() -> new EntityNotFoundException("Stand with id " + standId + " is not found"));
+        stand.setViews(stand.getViews() + 1);
+        standRepository.save(stand);
+    }
+
+    @Override
+    public @NonNull List<Extinct> findAllExtincts(@NonNull Stand stand){
+        return extinctRepository.findAllExtinctsByStandSortedByCreatedAt(stand);
     }
 }

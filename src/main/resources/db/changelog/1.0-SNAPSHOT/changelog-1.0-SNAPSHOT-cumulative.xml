@@ -5,13 +5,11 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
     <include file="2025.03.16--01-create_changeset_roles_table.xml" relativeToChangelogFile="true"/>
-    <include file="2025.03.16--02-insert_changeset_roles_table.xml" relativeToChangelogFile="true"/>
-    <include file="2025.03.16--03-create_changeset_users_table.xml" relativeToChangelogFile="true"/>
-    <include file="2025.03.16--04-create_changeset_stand_categories_table.xml" relativeToChangelogFile="true"/>
-    <include file="2025.03.16--05-insert_changeset_stand_categories_table.xml" relativeToChangelogFile="true"/>
-    <include file="2025.03.16--06-create_changeset_stands_table.xml" relativeToChangelogFile="true"/>
-    <include file="2025.03.16--07-create_changeset_extincts_table.xml" relativeToChangelogFile="true"/>
-    <include file="2025.03.16--08-create_changeset_extincts_images_table.xml" relativeToChangelogFile="true"/>
-    <include file="2025.03.24--01-alter_changeset_stands_table.xml" relativeToChangelogFile="true"/>
-    <include file="2025.03.24--02-alter_changeset_extincts_table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.03.30--01-insert_changeset_roles_table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.03.30--02-create_changeset_users_table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.03.30--03-create_changeset_stands_table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.03.30--04-create_changeset_extincts_table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.03.31--01-alter_tsvector_changeset.xml" relativeToChangelogFile="true"/>
+    <include file="2025.03.31--02-create_triggers_tsvector_changeset.xml" relativeToChangelogFile="true"/>
+    <include file="2025.03.31--03-update_search_changeset.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

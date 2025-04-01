@@ -10,5 +10,8 @@
         <insert tableName="roles">
             <column name="name" value="user"/>
         </insert>
+        <insert tableName="roles">
+            <column name="name" value="moderator"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>
