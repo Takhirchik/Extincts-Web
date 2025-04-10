@@ -4,6 +4,7 @@ import com.warlock.domain.Extinct;
 import com.warlock.domain.Stand;
 import com.warlock.domain.User;
 import com.warlock.model.request.CreateExtinctRequest;
+import com.warlock.model.request.UpdateExtinctRequest;
 import com.warlock.model.response.ExtinctResponse;
 import com.warlock.model.shortResponse.ExtinctShortResponse;
 import com.warlock.model.shortResponse.StandShortResponse;
@@ -15,7 +16,7 @@ import java.time.LocalDate;
 @Component
 public class ExtinctMapperImpl implements ExtinctMapper {
     @Override
-    public Extinct fromRequestToEntity(CreateExtinctRequest request,
+    public Extinct fromCreateRequestToEntity(CreateExtinctRequest request,
                                            User creator,
                                            Stand stand,
                                            String urlImage,
@@ -30,6 +31,16 @@ public class ExtinctMapperImpl implements ExtinctMapper {
         extinct.setSmallThumbnailUrl(smThumb);
         extinct.setMediumThumbnailUrl(mdThumb);
         extinct.setLargeThumbnailUrl(lgThumb);
+        extinct.setStand(stand);
+        extinct.setCreator(creator);
+        return extinct;
+    }
+
+    @Override
+    public Extinct fromUpdateRequestToEntity(UpdateExtinctRequest request, User creator, Stand stand){
+        Extinct extinct = new Extinct();
+        extinct.setExtinctName(request.getExtinctName());
+        extinct.setDescription(request.getDescription());
         extinct.setStand(stand);
         extinct.setCreator(creator);
         return extinct;

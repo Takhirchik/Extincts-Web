@@ -18,7 +18,7 @@
             <column name="likes" type="integer" defaultValue="0">
                 <constraints nullable="false"/>
             </column>
-            <column name="created_at" type="date" defaultValueDate="CURRENT_DATE">
+            <column name="created_at" type="date" defaultValueDate="NOW()">
                 <constraints nullable="false"/>
             </column>
             <column name="url_image" type="varchar(512)">
@@ -59,8 +59,8 @@
             <column name="stand_id"/>
         </createIndex>
 
-        <createIndex tableName="extincts" indexName="idx_extinct_user_id">
-            <column name="user_id"/>
+        <createIndex tableName="extincts" indexName="idx_extinct_creator_id">
+            <column name="creator_id"/>
         </createIndex>
 
         <createIndex tableName="extincts" indexName="idx_extinct_created_at">

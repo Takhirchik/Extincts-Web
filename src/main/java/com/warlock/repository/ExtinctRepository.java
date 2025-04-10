@@ -12,7 +12,6 @@ import java.util.List;
 
 @Repository
 public interface ExtinctRepository extends JpaRepository<Extinct, Long> {
-    List<Extinct> findAllById(List<Long> ids);
     @Query(value = """
         SELECT e.*, ts_rank(e.search_vector, to_tsquery('russian', :query)) as rank
         FROM extincts e

@@ -13,7 +13,6 @@ import java.util.Optional;
 @Repository
 public interface StandRepository extends JpaRepository<Stand, Long> {
     Optional<Stand> findByStandName (String standName);
-    List<Stand> findAllById(List<Long> ids);
 
     @Query(value = """
         SELECT s.*, ts_rank(s.search_vector, to_tsquery('russian', :query)) as rank

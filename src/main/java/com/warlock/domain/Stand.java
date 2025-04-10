@@ -35,7 +35,7 @@ public class Stand extends BaseDomain {
     private List<Extinct> extincts;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
 
     @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, orphanRemoval = true)

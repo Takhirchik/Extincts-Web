@@ -1,4 +1,4 @@
-package com.warlock.service.util;
+package com.warlock.service;
 
 import com.warlock.domain.Extinct;
 import com.warlock.domain.Stand;

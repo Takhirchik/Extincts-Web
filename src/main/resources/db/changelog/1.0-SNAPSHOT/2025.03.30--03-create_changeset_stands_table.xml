@@ -15,7 +15,7 @@
             <column name="views" type="int" defaultValue="0">
                 <constraints nullable="false"/>
             </column>
-            <column name="created_at" type="date" defaultValue="CURRENT_DATE">
+            <column name="created_at" type="date" defaultValue="NOW()">
                 <constraints nullable="false"/>
             </column>
             <column name="creator_id" type="bigint">

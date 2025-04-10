@@ -4,13 +4,13 @@ import com.warlock.domain.Extinct;
 import com.warlock.domain.Stand;
 import com.warlock.domain.User;
 import com.warlock.model.request.CreateExtinctRequest;
+import com.warlock.model.request.UpdateExtinctRequest;
 import com.warlock.model.response.ExtinctResponse;
 import com.warlock.model.shortResponse.ExtinctShortResponse;
-import com.warlock.model.shortResponse.StandShortResponse;
 import com.warlock.model.shortResponse.UserShortResponse;
 
 public interface ExtinctMapper {
-    Extinct fromRequestToEntity(CreateExtinctRequest request,
+    Extinct fromCreateRequestToEntity(CreateExtinctRequest request,
                                 User creator,
                                 Stand stand,
                                 String urlImage,
@@ -18,6 +18,8 @@ public interface ExtinctMapper {
                                 String mdThumb,
                                 String lgThumb
     );
+
+    Extinct fromUpdateRequestToEntity(UpdateExtinctRequest request, User creator, Stand stand);
 
     ExtinctResponse fromEntityToResponse(
             Extinct extinct,

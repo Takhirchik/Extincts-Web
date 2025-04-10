@@ -7,7 +7,6 @@ import com.warlock.model.response.StandResponse;
 import com.warlock.model.shortResponse.ExtinctShortResponse;
 import com.warlock.model.shortResponse.StandShortResponse;
 import com.warlock.model.shortResponse.UserShortResponse;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,7 +15,7 @@ import java.util.List;
 public class StandsMapperImpl implements StandsMapper{
 
     @Override
-    public Stand fromRequestToEntity(@NotNull CreateStandRequest request, User user){
+    public Stand fromRequestToEntity(CreateStandRequest request, User user){
         Stand stand = new Stand();
         stand.setStandName(request.getStandName());
         stand.setDescription(request.getDescription());

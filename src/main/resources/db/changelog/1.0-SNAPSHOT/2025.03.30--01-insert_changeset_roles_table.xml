@@ -5,13 +5,13 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
     <changeSet id="insert-into-roles" author="takhirchik">
         <insert tableName="roles">
-            <column name="name" value="admin"/>
+            <column name="name" value="ROLE_ADMIN"/>
         </insert>
         <insert tableName="roles">
-            <column name="name" value="user"/>
+            <column name="name" value="ROLE_USER"/>
         </insert>
-        <insert tableName="roles">
-            <column name="name" value="moderator"/>
-        </insert>
+<!--        <insert tableName="roles">-->
+<!--            <column name="name" value="ROLE_MODERATOR"/>-->
+<!--        </insert>-->
     </changeSet>
 </databaseChangeLog>

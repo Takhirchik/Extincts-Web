@@ -6,6 +6,12 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -13,7 +19,7 @@ import java.util.Objects;
 @Accessors(chain = true)
 @Entity
 @Table(name="users")
-public class User extends BaseDomain {
+public class User extends BaseDomain implements UserDetails {
     @Column(name = "nickname", nullable = false)
     private String nickname;
 
@@ -30,33 +36,37 @@ public class User extends BaseDomain {
     private String email;
 
     @Column(name = "avatar_url")
-    private String url_image;
+    private String urlImage;
 
-    @Column(name = "small_thumbnail_url", nullable = false)
+    @Column(name = "small_thumbnail_url")
     private String smallThumbnailUrl;
 
-    @Column(name = "medium_thumbnail_url", nullable = false)
+    @Column(name = "medium_thumbnail_url")
     private String mediumThumbnailUrl;
 
-    @Column(name = "large_thumbnail_url", nullable = false)
+    @Column(name = "large_thumbnail_url")
     private String largeThumbnailUrl;
-
-
+    
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.getName()));
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return login.equals(user.login);
+        return nickname.equals(user.nickname) && login.equals(user.login) && email.equals(user.email);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(login);
+        return Objects.hash(nickname, login, email);
     }
 
     @Override
@@ -68,5 +78,10 @@ public class User extends BaseDomain {
                 ", email=" + this.email +
                 ", role=" + this.role +
                 "}";
+    }
+
+    @Override
+    public String getUsername(){
+        return this.login;
     }
 }

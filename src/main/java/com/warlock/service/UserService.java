@@ -3,6 +3,7 @@ package com.warlock.service;
 import com.warlock.domain.Role;
 import com.warlock.domain.User;
 import lombok.NonNull;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
 
@@ -14,7 +15,10 @@ public interface UserService {
     User findById(@NonNull Long userId);
 
     @NonNull
-    User createUser(@NonNull User request);
+    User save(@NonNull User user);
+
+    @NonNull
+    User create(@NonNull User user);
 
     @NonNull
     User update(@NonNull Long userId, @NonNull User request);
@@ -22,5 +26,13 @@ public interface UserService {
     void delete(@NonNull Long userId);
 
     @NonNull
-    User assignRole(@NonNull Long userId, @NonNull Role role);
+    User assignRole(@NonNull Long userId);
+
+    @NonNull
+    User getCurrentUser();
+
+    @NonNull
+    User getByLogin(@NonNull String login);
+
+    UserDetailsService userDetailsService();
 }

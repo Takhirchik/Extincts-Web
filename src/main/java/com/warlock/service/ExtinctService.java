@@ -1,6 +1,7 @@
 package com.warlock.service;
 
 import com.warlock.domain.Extinct;
+import com.warlock.domain.User;
 import lombok.NonNull;
 
 import java.util.List;
@@ -23,4 +24,6 @@ public interface ExtinctService {
     void incrementViews(@NonNull Long extinctId);
 
     void incrementLikes(@NonNull Long extinctId);
+
+    void isCreator(@NonNull Long extinctId, @NonNull User user);
 }

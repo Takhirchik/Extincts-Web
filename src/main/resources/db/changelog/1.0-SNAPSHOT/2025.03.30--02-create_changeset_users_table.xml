@@ -21,18 +21,10 @@
             <column name="email" type="varchar(50)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="avatar_url" type="varchar(512)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="small_thumbnail_url" type="varchar(512)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="medium_thumbnail_url" type="varchar(512)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="large_thumbnail_url" type="varchar(512)">
-                <constraints nullable="false"/>
-            </column>
+            <column name="avatar_url" type="varchar(512)"/>
+            <column name="small_thumbnail_url" type="varchar(512)"/>
+            <column name="medium_thumbnail_url" type="varchar(512)"/>
+            <column name="large_thumbnail_url" type="varchar(512)"/>
             <column name="role_id" type="bigint">
                 <constraints nullable="false"/>
             </column>

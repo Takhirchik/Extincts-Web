@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+
 import java.util.Objects;
 
 @Getter
@@ -13,7 +15,7 @@ import java.util.Objects;
 @Accessors(chain = true)
 @Entity
 @Table(name="roles")
-public class Role extends BaseDomain {
+public class Role extends BaseDomain implements GrantedAuthority {
 
     @Column(name="name", nullable=false, unique=true)
     private String name;
@@ -36,5 +38,10 @@ public class Role extends BaseDomain {
         return "Role{" +
                 "name=" + this.name +
                 "}";
+    }
+
+    @Override
+    public String getAuthority() {
+        return getName();
     }
 }
