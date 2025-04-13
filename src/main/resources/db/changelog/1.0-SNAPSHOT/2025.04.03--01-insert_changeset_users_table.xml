@@ -7,7 +7,7 @@
         <insert tableName="users">
             <column name="nickname" value="mr.admin"/>
             <column name="login" value="mr.admin.login"/>
-            <column name="password" value="mr.admin.password"/>
+            <column name="password" value="344196a12d3e54fa8bc7e16072c525b2d978ac715b19bcb75ff77af0bf796aff"/>
             <column name="email" value="mr.admin@example.com"/>
             <column name="role_id" value="1"/>
         </insert>

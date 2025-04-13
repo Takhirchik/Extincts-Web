@@ -87,6 +87,16 @@ public class AppExceptionHandler {
         );
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ExceptionBody> handleIllegalState(IllegalStateException ex){
+        return new ResponseEntity<>(
+                new ExceptionBody()
+                        .setMessage(ex.getMessage())
+                        .setTimestamp(Instant.now()),
+                HttpStatus.FORBIDDEN
+        );
+    }
+
     @Getter
     @Setter
     @Accessors(chain = true)

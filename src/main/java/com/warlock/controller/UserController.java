@@ -9,6 +9,7 @@ import com.warlock.service.ImageStorageService;
 import com.warlock.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -45,6 +47,59 @@ public class UserController {
 
     @Autowired
     private final ImageStorageService imageStorageService;
+
+    @Operation(
+            summary = "Получить текущего User",
+            description = "Возвращает данные аутентифицированного пользователя",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Успешное получение данных",
+                            content = @Content(schema = @Schema(implementation = UserResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Требуется аутентификация"
+                    )
+            }
+    )
+    @GetMapping("/current")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserResponse> getCurrentUser() {
+        var user = userService.getCurrentUser();
+        return new ResponseEntity<>(
+                userMapper.fromEntityToResponse(user),
+                HttpStatus.OK
+        );
+    }
+
+    @Operation(
+            summary = "Получить всех User",
+            description = "Возвращает список всех пользователей (кроме текущего)",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Успешное получение данных",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserResponse.class)))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Требуется аутентификация"
+                    )
+            }
+    )
+    @GetMapping("/all")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
+        var currentUser = userService.getCurrentUser();
+        var users = userService.findAll()
+                .stream()
+                .filter(user -> !user.getId().equals(currentUser.getId()))
+                .map(userMapper::fromEntityToResponse)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(users, HttpStatus.OK);
+    }
 
     @Operation(
             summary = "Получить данные User",

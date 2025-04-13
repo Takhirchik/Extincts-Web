@@ -13,5 +13,4 @@ public class ExtinctsWebApplication {
     public static void main(String[] args) {
         SpringApplication.run(ExtinctsWebApplication.class, args);
     }
-
 }

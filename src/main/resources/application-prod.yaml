@@ -15,3 +15,12 @@ spring:
     drop-first: false
     change-log: classpath:db/changelog/db.changelog-master.xml
     default-schema: public
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+  mvc:
+    static-path-pattern: /**
+  web:
+    resources:
+      static-locations: classpath:/static/

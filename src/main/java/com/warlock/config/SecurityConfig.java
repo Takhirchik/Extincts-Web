@@ -21,6 +21,8 @@ import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.List;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -41,16 +43,33 @@ public class SecurityConfig {
                     return corsConfiguration;
                 }))
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/sign-in", "/sign-up").anonymous()
-                        .requestMatchers("/stand/**", "/search/**", "/popular/**", "/extinct/**", "/user/**").permitAll()
+                        .requestMatchers("/sign-in", "/sign-up").authenticated()
+                        .requestMatchers("/stand/**", "/extinct/**", "/user/**").permitAll()
+                        .requestMatchers("/search/**", "/popular/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
+                        .requestMatchers("/chat", "/app", "/websocket", "/chat/**", "/app/**").permitAll()
+                        .requestMatchers("/messages", "/messages/**").authenticated()
                         .requestMatchers("/endpoint", "/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/", "/login", "register", "/home", "/js/**", "/css/**", "/static/**").permitAll()
+                        .requestMatchers("/messenger").authenticated()
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(
                         SessionCreationPolicy.STATELESS
                 ))
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .httpBasic(withDefaults()) // Для отладки
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll()
+                );
         return http.build();
     }
 
