@@ -224,5 +224,4 @@ public class ExtinctController {
         extinctService.delete(extinctId);
         return new ResponseEntity<>("Successful deleted extinct:" + extinctId, HttpStatus.OK);
     }
-
 }

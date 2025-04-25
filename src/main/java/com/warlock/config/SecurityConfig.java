@@ -43,15 +43,13 @@ public class SecurityConfig {
                     return corsConfiguration;
                 }))
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/sign-in", "/sign-up").authenticated()
+                        .requestMatchers("/sign-in", "/sign-up").permitAll()
                         .requestMatchers("/stand/**", "/extinct/**", "/user/**").permitAll()
                         .requestMatchers("/search/**", "/popular/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
-                        .requestMatchers("/chat", "/app", "/websocket", "/chat/**", "/app/**").permitAll()
+                        .requestMatchers("/websocket/**", "/topic/**", "/queue/**", "/app/**").permitAll()
                         .requestMatchers("/messages", "/messages/**").authenticated()
-                        .requestMatchers("/endpoint", "/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/", "/login", "register", "/home", "/js/**", "/css/**", "/static/**").permitAll()
-                        .requestMatchers("/messenger").authenticated()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(
                         SessionCreationPolicy.STATELESS

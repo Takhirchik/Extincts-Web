@@ -7,7 +7,6 @@ import com.warlock.model.shortResponse.ExtinctShortResponse;
 import com.warlock.model.shortResponse.StandShortResponse;
 import com.warlock.model.shortResponse.UserShortResponse;
 import com.warlock.service.ExtinctService;
-import com.warlock.service.ImageStorageService;
 import com.warlock.service.StandService;
 import com.warlock.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;

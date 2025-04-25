@@ -25,11 +25,6 @@ public interface ExtinctRepository extends JpaRepository<Extinct, Long> {
     List<Extinct> searchExtincts(
             @Param("query") String query,
             @Param("sortBy") String sortBy);
-
-    @Query(value = "SELECT COUNT(*) FROM extincts WHERE search_vector @@ to_tsquery('russian', :query)",
-            nativeQuery = true)
-    int countSearchExtincts(@Param("query") String query);
-
     @Query("SELECT e FROM Extinct e WHERE e.stand = :stand ORDER BY e.createdAt ASC")
     List<Extinct> findAllExtinctsByStandSortedByCreatedAt(@Param("stand") Stand stand);
 }

@@ -34,20 +34,34 @@ public class StandServiceImpl implements StandService {
     @Autowired
     private final StandStatsRepository standStatsRepository;
 
-    //Получаем весь список пользователей
+    /**
+     * найти все стенды
+     *
+     * @return все существующие стенды
+     */
     @Override
     public @NonNull List<Stand> findAll() {
         return standRepository.findAll();
     }
 
-    //Получаем пользователя по id
+    /**
+     * найти стенд по ID
+     *
+     * @param standId ID стенда
+     * @return стэнд
+     */
     @Override
     public @NonNull Stand findById(@NonNull Long standId) {
         return standRepository.findById(standId)
                 .orElseThrow(() -> new EntityNotFoundException("Stand " + standId + " is not found"));
     }
 
-    //Создаем пользователя
+    /**
+     * создать стенд
+     *
+     * @param request стенд
+     * @return созданный стенд
+     */
     @Override
     @Transactional
     public @NonNull Stand createStand(@NonNull Stand request) {
@@ -56,7 +70,13 @@ public class StandServiceImpl implements StandService {
         return standRepository.save(request);
     }
 
-    //Обновляем пользователя по id
+    /**
+     * обновить стенд
+     *
+     * @param standId ID стенда который нужно обновить
+     * @param request новые данные стенда
+     * @return обновлённый стенд
+     */
     @Override
     @Transactional
     public @NonNull Stand update(@NonNull Long standId, @NonNull Stand request) {
@@ -67,7 +87,11 @@ public class StandServiceImpl implements StandService {
         return standRepository.save(stand);
     }
 
-    //Удаляем пользователя по id
+    /**
+     * удалить стенд по ID
+     *
+     * @param standId ID стенда
+     */
     @Override
     public void delete(@NonNull Long standId) {
         standRepository.deleteById(standId);
@@ -78,6 +102,11 @@ public class StandServiceImpl implements StandService {
         ofNullable(request.getDescription()).map(stand::setDescription);
     }
 
+    /**
+     * увеличить число просмотров
+     *
+     * @param standId ID стенда
+     */
     @Override
     @Transactional
     public void incrementViews(@NonNull Long standId){
@@ -100,11 +129,23 @@ public class StandServiceImpl implements StandService {
 
     }
 
+    /**
+     * найти все экспонаты в стенде
+     *
+     * @param stand стенд
+     * @return список экспонатов
+     */
     @Override
     public @NonNull List<Extinct> findAllExtincts(@NonNull Stand stand){
         return extinctRepository.findAllExtinctsByStandSortedByCreatedAt(stand);
     }
 
+    /**
+     * проверка на создателя
+     *
+     * @param standId ID стенда
+     * @param user пользователь
+     */
     @Override
     public void isCreator(@NonNull Long standId, @NonNull User user){
         Stand stand = standRepository.findById(standId)
@@ -114,6 +155,12 @@ public class StandServiceImpl implements StandService {
         }
     }
 
+    /**
+     * добавить экспонат
+     *
+     * @param standId ID стенда
+     * @param extinctId ID экспоната
+     */
     @Override
     public void addExtinct(@NonNull Long standId, @NonNull Long extinctId){
         Stand stand = standRepository.findById(standId)
@@ -133,6 +180,12 @@ public class StandServiceImpl implements StandService {
         extinctRepository.save(extinct);
     }
 
+    /**
+     * удалить экспонат
+     *
+     * @param standId ID стенда
+     * @param extinctId ID экспоната
+     */
     @Override
     public void deleteExtinct(@NonNull Long standId, @NonNull Long extinctId){
         Stand stand = standRepository.findById(standId)

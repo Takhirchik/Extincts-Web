@@ -13,16 +13,11 @@ import java.util.Optional;
 
 @Repository
 public interface StandStatsRepository extends JpaRepository<StandStats, Long> {
-    // Найти статистику по Stand и Date
     Optional<StandStats> findByStandAndDate(Stand stand, LocalDate date);
-    // Найти всю статистику Stand
-    List<StandStats> findByStand(Stand stand);
-    // Найти популярные Stands
     @Query("SELECT s.stand.id FROM StandStats s " +
             "WHERE s.date >= :since " +
             "GROUP BY s.stand.id " +
             "ORDER BY SUM(s.views) DESC")
     List<Long> findPopularStands(@Param("since") LocalDate since);
-
     void deleteByDate(LocalDate date);
 }

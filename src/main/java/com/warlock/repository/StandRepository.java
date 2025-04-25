@@ -12,8 +12,6 @@ import java.util.Optional;
 
 @Repository
 public interface StandRepository extends JpaRepository<Stand, Long> {
-    Optional<Stand> findByStandName (String standName);
-
     @Query(value = """
         SELECT s.*, ts_rank(s.search_vector, to_tsquery('russian', :query)) as rank
         FROM stands s
@@ -26,10 +24,4 @@ public interface StandRepository extends JpaRepository<Stand, Long> {
     List<Stand> searchStands(
             @Param("query") String query,
             @Param("sortBy") String sortBy);
-
-    @Query(value = "SELECT COUNT(*) FROM stands WHERE search_vector @@ to_tsquery('russian', :query)",
-            nativeQuery = true)
-    int countSearchStands(@Param("query") String query);
-
-
 }

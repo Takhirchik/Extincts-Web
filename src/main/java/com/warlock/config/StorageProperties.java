@@ -24,9 +24,9 @@ public class StorageProperties {
     @Getter
     @Setter
     public static class S3{
+        private String url;
         private String bucketName;
         private String accessKey;
         private String secretKey;
-        private String region;
     }
 }

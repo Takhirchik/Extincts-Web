@@ -1,11 +1,9 @@
 package com.warlock.exceptions;
 
+import com.warlock.model.response.ExceptionResponse;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,91 +16,66 @@ import java.time.Instant;
 public class AppExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ExceptionBody> handleAll(Exception ex){
+    public ResponseEntity<ExceptionResponse> handleAll(Exception ex){
         return new ResponseEntity<>(
-                new ExceptionBody()
-                        .setMessage(ex.getMessage())
-                        .setTimestamp(Instant.now()),
+                new ExceptionResponse(ex.getMessage(), Instant.now()),
                 HttpStatus.BAD_REQUEST
         );
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ExceptionBody> handleEntityNotFound(EntityNotFoundException ex){
+    public ResponseEntity<ExceptionResponse> handleEntityNotFound(EntityNotFoundException ex){
         return new ResponseEntity<>(
-                new ExceptionBody()
-                        .setMessage(ex.getMessage())
-                        .setTimestamp(Instant.now()),
+                new ExceptionResponse(ex.getMessage(), Instant.now()),
                 HttpStatus.NOT_FOUND
         );
     }
 
     @ExceptionHandler(EntityExistsException.class)
-    public ResponseEntity<ExceptionBody> handleEntityExists(EntityExistsException ex){
+    public ResponseEntity<ExceptionResponse> handleEntityExists(EntityExistsException ex){
         return new ResponseEntity<>(
-                new ExceptionBody()
-                        .setMessage(ex.getMessage())
-                        .setTimestamp(Instant.now()),
+                new ExceptionResponse(ex.getMessage(), Instant.now()),
                 HttpStatus.BAD_REQUEST
         );
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ExceptionBody> handleIllegalArgument(IllegalArgumentException ex){
+    public ResponseEntity<ExceptionResponse> handleIllegalArgument(IllegalArgumentException ex){
         return new ResponseEntity<>(
-                new ExceptionBody()
-                        .setMessage(ex.getMessage())
-                        .setTimestamp(Instant.now()),
+                new ExceptionResponse(ex.getMessage(), Instant.now()),
                 HttpStatus.BAD_REQUEST
         );
     }
 
     @ExceptionHandler(AccessToResourcesException.class)
-    public ResponseEntity<ExceptionBody> handleAccessToResources(AccessToResourcesException ex){
+    public ResponseEntity<ExceptionResponse> handleAccessToResources(AccessToResourcesException ex){
         return new ResponseEntity<>(
-                new ExceptionBody()
-                        .setMessage(ex.getMessage())
-                        .setTimestamp(Instant.now()),
+                new ExceptionResponse(ex.getMessage(), Instant.now()),
                 HttpStatus.FORBIDDEN
         );
     }
 
     @ExceptionHandler(ImageProcessingException.class)
-    public ResponseEntity<ExceptionBody> handleImageProcessing(ImageProcessingException ex){
+    public ResponseEntity<ExceptionResponse> handleImageProcessing(ImageProcessingException ex){
         return new ResponseEntity<>(
-                new ExceptionBody()
-                        .setMessage(ex.getMessage())
-                        .setTimestamp(Instant.now()),
+                new ExceptionResponse(ex.getMessage(), Instant.now()),
                 HttpStatus.BAD_REQUEST
         );
     }
 
     @ExceptionHandler(PasswordConfirmationException.class)
-    public ResponseEntity<ExceptionBody> handlePasswordConfirmation(PasswordConfirmationException ex){
+    public ResponseEntity<ExceptionResponse> handlePasswordConfirmation(PasswordConfirmationException ex){
         return new ResponseEntity<>(
-                new ExceptionBody()
-                        .setMessage(ex.getMessage())
-                        .setTimestamp(Instant.now()),
+                new ExceptionResponse(ex.getMessage(), Instant.now()),
                 HttpStatus.BAD_REQUEST
         );
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ExceptionBody> handleIllegalState(IllegalStateException ex){
+    public ResponseEntity<ExceptionResponse> handleIllegalState(IllegalStateException ex){
         return new ResponseEntity<>(
-                new ExceptionBody()
-                        .setMessage(ex.getMessage())
-                        .setTimestamp(Instant.now()),
+                new ExceptionResponse(ex.getMessage(), Instant.now()),
                 HttpStatus.FORBIDDEN
         );
-    }
-
-    @Getter
-    @Setter
-    @Accessors(chain = true)
-    public static class ExceptionBody{
-        private String message;
-        private Instant timestamp;
-
     }
 }

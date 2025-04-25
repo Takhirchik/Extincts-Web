@@ -2,32 +2,33 @@ server:
   port: 8181
 
 spring:
-  profiles:
-    active: prod
   jpa:
     properties:
       hibernate:
         format_sql: true
-    show_sql: true
   mvc:
     pathmatch:
       matching-strategy: PATH_PATTERN_PARSER
+
+  redis:
+    host: localhost
+    port: 6379
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000
 
 token:
   signing:
     key: dc9086109fec08821a1e93528a25e6785d252db807a58b2d402d9cb5128efb84
     expiration: 86400000
 
-storage:
-  type: local
-  local:
-    directory: ./uploads
-  base-url: http://localhost:8181/files/
-  s3: # Реализация отсутствует
-    bucket-name: your-bucket
-    access-key: your-access-key
-    secret-key: your-secret-key
-    region: us-east-1
+minio:
+   url: http://localhost:9000
+   bucket-name: images
+   access-key: minioadmin
+   secret-key: minioadmin
+   secure: false
 
 image:
   small_thumbnail:
@@ -47,11 +48,11 @@ springdoc:
     enabled: true
   packagesToScan: com.warlock
 
-logging:
-  level:
-    org:
-      springdoc: DEBUG
-      springframework:
-        web:
-          socket: DEBUG
-          messaging: DEBUG
+#logging:
+#  level:
+#    org:
+#      springdoc: DEBUG
+#      springframework:
+#        web:
+#          socket: DEBUG
+#          messaging: DEBUG

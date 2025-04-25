@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/extincts-web-db
+    url: jdbc:postgresql://localhost:5433/extincts-web-db-test
     username: extinct-user
     password: gfg
     driver-class-name: org.postgresql.Driver
@@ -14,5 +14,5 @@ spring:
   liquibase:
     enabled: true
     drop-first: false
-    change-log: classpath:db/changelog/db.changelog-master.xml
+    change-log: classpath:db/changelog/db-test.changelog-master.xml
     default-schema: public

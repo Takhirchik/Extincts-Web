@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="create-table-extincts_stats" author="takhirchik">
+        <createTable tableName="extincts_stats">
+            <column autoIncrement="true" name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="extinct_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="views" type="int" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="likes" type="int" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date" type="date" defaultValue="NOW()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="extincts_stats"
+                baseColumnNames="extinct_id"
+                referencedTableName="extincts"
+                referencedColumnNames="id"
+                constraintName="fk_extincts_stats_extincts"
+                onDelete="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>

@@ -3,7 +3,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
-    <changeSet id="create_tsvector_functions" author="you" dbms="postgresql">
+    <changeSet id="create_tsvector_functions" author="takhirchik" dbms="postgresql">
         <createProcedure>
             CREATE OR REPLACE FUNCTION stands_search_vector_update() RETURNS trigger AS $STANDS$
             BEGIN
@@ -38,7 +38,7 @@
         </createProcedure>
     </changeSet>
 
-    <changeSet id="create_triggers" author="you" dbms="postgresql">
+    <changeSet id="create_triggers" author="takhirchik" dbms="postgresql">
         <sql>
             CREATE TRIGGER stands_search_vector_trigger
             BEFORE INSERT OR UPDATE ON stands

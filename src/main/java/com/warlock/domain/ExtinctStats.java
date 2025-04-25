@@ -27,6 +27,4 @@ public class ExtinctStats extends BaseDomain {
 
     @Column(name = "likes", nullable = false)
     private Integer likes = 0;
-
-
 }

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="init-test-values-stands-table" author="takhirchik">
+        <!-- Стенд с динозаврами -->
+        <insert tableName="stands">
+            <column name="stand_name" value="Эра Динозавров"/>
+            <column name="description" value="Экспозиция мезозойской эры с древними ящерами"/>
+            <column name="creator_id" valueComputed="(SELECT id FROM users WHERE login = 'curator')"/>
+            <column name="created_at" valueComputed="NOW() - INTERVAL '5 days'"/>
+        </insert>
+
+        <!-- Стенд с мамонтами -->
+        <insert tableName="stands">
+            <column name="stand_name" value="Ледниковый Период"/>
+            <column name="description" value="Млекопитающие плейстоценовой эпохи"/>
+            <column name="creator_id" valueComputed="(SELECT id FROM users WHERE login = 'paleontologist')"/>
+            <column name="created_at" valueComputed="NOW() - INTERVAL '3 days'"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

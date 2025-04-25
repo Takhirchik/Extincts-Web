@@ -16,17 +16,10 @@ public interface UserRepository extends JpaRepository<User, Long>{
         SELECT u.*, ts_rank(u.search_vector, to_tsquery('russian', :query)) as rank
         FROM users u
         WHERE u.search_vector @@ to_tsquery('russian', :query)
-        ORDER BY ts_rank(u.search_vector, to_tsquery('russian', :query)) END DESC
+        ORDER BY ts_rank(u.search_vector, to_tsquery('russian', :query)) DESC
         """, nativeQuery = true)
     List<User> searchUsers(@Param("query") String query);
-
-    @Query(value = "SELECT COUNT(*) FROM users WHERE search_vector @@ to_tsquery('russian', :query)",
-            nativeQuery = true)
-    int countSearchUsers(@Param("query") String query);
-
     Optional<User> findByLogin(String login);
-
     boolean existsByLogin(String login);
-
     boolean existsByEmail(String email);
 }

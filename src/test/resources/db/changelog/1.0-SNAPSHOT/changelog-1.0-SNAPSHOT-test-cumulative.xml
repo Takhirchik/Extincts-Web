@@ -16,4 +16,7 @@
     <include file="2025.04.03--02-create_changeset_stand_stats_table.xml" relativeToChangelogFile="true"/>
     <include file="2025.04.03--03-create_changeset_extinct_stats_table.xml" relativeToChangelogFile="true"/>
     <include file="2025.04.12--01-create_changeset_chat_messages_table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.04.16--01-init-test-values-user-table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.04.16--02-init-test-values-stand-table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.04.16--03-init-test-values-extinct-table.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

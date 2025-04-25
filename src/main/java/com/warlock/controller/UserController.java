@@ -4,8 +4,6 @@ import com.warlock.exceptions.AccessToResourcesException;
 import com.warlock.mapper.UserMapper;
 import com.warlock.model.request.UpdateUserRequest;
 import com.warlock.model.response.UserResponse;
-import com.warlock.service.ImageProcessingService;
-import com.warlock.service.ImageStorageService;
 import com.warlock.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

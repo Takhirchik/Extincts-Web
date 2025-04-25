@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="init-test-values-users-table" author="takhirchik">
+        <!-- Администратор -->
+        <insert tableName="users">
+            <column name="nickname" value="Администратор Системы"/>
+            <column name="login" value="admin"/>
+            <column name="password" value="$2a$10$LXkpKmCPwlFiVQ9a/2zmUe2di/ZGSCGUd77Xndj7k3LJbRugQ7n7e"/>
+            <column name="email" value="admin@example.com"/>
+            <column name="bio" value="Администратор Системы admin"/>
+            <column name="role_id" valueComputed="(SELECT id FROM roles WHERE name = 'ROLE_ADMIN')"/>
+        </insert>
+
+        <!-- Палеонтолог -->
+        <insert tableName="users">
+            <column name="nickname" value="Иван Палеонтолог"/>
+            <column name="login" value="paleontologist"/>
+            <column name="password" value="$2a$10$LXkpKmCPwlFiVQ9a/2zmUe2di/ZGSCGUd77Xndj7k3LJbRugQ7n7e"/>
+            <column name="email" value="ivan@example.com"/>
+            <column name="bio" value="Иван Иванович - палеонтолог в 3-м поколении"/>
+            <column name="role_id" valueComputed="(SELECT id FROM roles WHERE name = 'ROLE_USER')"/>
+        </insert>
+
+        <!-- Куратор выставки -->
+        <insert tableName="users">
+            <column name="nickname" value="Елена Куратор"/>
+            <column name="login" value="curator"/>
+            <column name="password" value="$2a$10$LXkpKmCPwlFiVQ9a/2zmUe2di/ZGSCGUd77Xndj7k3LJbRugQ7n7e"/>
+            <column name="email" value="elena@example.com"/>
+            <column name="bio" value="Елена Белова - куратор выставки, по всем вопросам пишите по адресу elena@example.com"/>
+            <column name="role_id" valueComputed="(SELECT id FROM roles WHERE name = 'ROLE_ADMIN')"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

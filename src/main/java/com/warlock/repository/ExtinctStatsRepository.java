@@ -13,17 +13,11 @@ import java.util.Optional;
 
 @Repository
 public interface ExtinctStatsRepository extends JpaRepository<ExtinctStats, Long> {
-    // Найти статистику по Extinct и Date
     Optional<ExtinctStats> findByExtinctAndDate(Extinct extinct, LocalDate date);
-    // Найти всю статистику Extinct
-    List<ExtinctStats> findByExtinct(Extinct extinct);
-    // Найти популярные Extincts
     @Query("SELECT e.extinct.id FROM ExtinctStats e " +
             "WHERE e.date >= :since " +
             "GROUP BY e.extinct.id " +
             "ORDER BY (SUM(e.views) + SUM(e.likes) * 2) DESC")
     List<Long> findPopularExtincts(@Param("since") LocalDate since);
-
     void deleteByDate(LocalDate date);
-
 }
