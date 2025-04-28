@@ -58,19 +58,6 @@ public class MinioStorageService {
         }
     }
 
-//    public InputStream getFile(String objectName) throws IOException {
-//        try {
-//            return minioClient.getObject(
-//                    GetObjectArgs.builder()
-//                            .bucket(bucketName)
-//                            .object(objectName)
-//                            .build());
-//        } catch (Exception e) {
-//            log.error("Error getting file from MinIO", e);
-//            throw new IOException("Failed to get file from MinIO", e);
-//        }
-//    }
-
     public void deleteFile(String objectUrl) throws IOException {
         try {
             String objectName = objectUrl.replace(url + '/' + bucketName + '/', "");

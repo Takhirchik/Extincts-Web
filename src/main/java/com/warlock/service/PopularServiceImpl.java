@@ -9,15 +9,21 @@ import com.warlock.repository.StandStatsRepository;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "popular")
 public class PopularServiceImpl implements PopularService {
 
     @Autowired
@@ -34,6 +40,7 @@ public class PopularServiceImpl implements PopularService {
 
     private static final Integer MAX_PERIOD_DAYS = 30;
 
+    @CacheEvict(allEntries = true)
     @Override
     @Scheduled(cron = "0 0 3 * * ?")
     @Transactional
@@ -41,8 +48,10 @@ public class PopularServiceImpl implements PopularService {
         LocalDate threshold = LocalDate.now().minusDays(MAX_PERIOD_DAYS);
         standStatsRepository.deleteByDate(threshold);
         extinctStatsRepository.deleteByDate(threshold);
+        log.info("Deleting old stats...");
     }
 
+    @Cacheable(key = "'stands:' + #period")
     @Override
     public @NonNull List<Stand> getPopularStands(@NonNull Integer period){
         validateDate(period);
@@ -53,6 +62,7 @@ public class PopularServiceImpl implements PopularService {
         return standRepository.findAllById(popularIds);
     }
 
+    @Cacheable(key = "'extincts:' + #period")
     @Override
     public @NonNull List<Extinct> getPopularExtincts(@NonNull Integer period){
         validateDate(period);

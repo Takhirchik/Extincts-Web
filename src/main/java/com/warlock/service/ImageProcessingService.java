@@ -1,17 +1,18 @@
 package com.warlock.service;
 
+import com.google.common.io.ByteStreams;
 import com.warlock.domain.TempImageUrl;
 import com.warlock.model.enums.ImageStatus;
 import com.warlock.model.records.ImageInfo;
-import com.warlock.model.response.ImageUploadNotification;
 import com.warlock.repository.TempImageUrlRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.imgscalr.Scalr;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,29 +20,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
+import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "images")
 public class ImageProcessingService {
 
     private final MinioStorageService storageService;
     private final TempImageUrlRepository tempImageUrlRepository;
-    private final SimpMessagingTemplate messagingTemplate;
 
     private final UserService userService;
     private final ExtinctService extinctService;
@@ -70,10 +65,14 @@ public class ImageProcessingService {
 
         BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(file.getBytes()));
 
+        log.info("Creating thumbnails");
         // Миниатюры
         String smallThumbnailUrl = createThumbnail(originalImage, file, smallSize, directory);
+        log.info("Small thumbnail : {}", smallThumbnailUrl);
         String mediumThumbnailUrl = createThumbnail(originalImage, file, mediumSize, directory);
+        log.info("Medium thumbnail : {}", mediumThumbnailUrl);
         String largeThumbnailUrl = createThumbnail(originalImage, file, largeSize, directory);
+        log.info("Large thumbnail : {}", largeThumbnailUrl);
 
         return new ImageInfo(originalPath, smallThumbnailUrl, mediumThumbnailUrl, largeThumbnailUrl);
     }
@@ -126,13 +125,8 @@ public class ImageProcessingService {
                 .setExpiresAt(LocalDateTime.now().plusMinutes(2))
                 .setStatus(ImageStatus.PENDING)
                 .setRetryCount(0);
-
+        log.info("Save pending image {} in temp table", tempImageUrl);
         tempImageUrlRepository.save(tempImageUrl);
-        notifyUser(
-                getUserIdForEntity(targetEntity, targetId),
-                "Image URL received. Processing started",
-                ImageStatus.PENDING
-        );
     }
 
     /**
@@ -148,23 +142,16 @@ public class ImageProcessingService {
             try{
                 var images = processImageFromUrl(url);
                 url.setStatus(ImageStatus.COMPLETED);
+                log.info("Successfully upload image from URL to S3");
                 updateEntityWithImages(url.getTargetEntity(), url.getTargetEntityId(), images);
-                notifyUser(
-                        getUserIdForEntity(url.getTargetEntity(), url.getTargetEntityId()),
-                        "Image uploaded successfully",
-                        ImageStatus.COMPLETED
-                );
+                log.info("Successfully update images in entities");
             } catch (Exception e){
                 log.error("Failed to process image URL: {}", e.getMessage());
                 url.setRetryCount(url.getRetryCount() + 1);
 
                 if (url.getRetryCount() >= 5){
+                    log.error("Uploading image failed after 5 attempts");
                     url.setStatus(ImageStatus.FAILED);
-                    notifyUser(
-                            getUserIdForEntity(url.getTargetEntity(), url.getTargetEntityId()),
-                            "Failed to upload image after 5 attempts",
-                            ImageStatus.FAILED
-                    );
                 }
             }
         });
@@ -179,20 +166,35 @@ public class ImageProcessingService {
      * @return ImageInfo
      * @throws IOException ошибка скачивания изображения по URL
      */
+    @Cacheable(key = "'url:' + #originalUrl")
     public ImageInfo processImageFromUrl(TempImageUrl tempImageUrl) throws IOException
     {
         URL url = new URL(tempImageUrl.getOriginalUrl());
         Path tempFile = Files.createTempFile("download-", ".tmp");
 
         try {
-            Files.copy(url.openStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            String contentType = connection.getContentType();
+
+            if (contentType == null || !contentType.startsWith("image/")){
+                throw new IOException("Invalid image content type: " + contentType);
+            }
+
+            try (
+                    InputStream is = connection.getInputStream();
+                    OutputStream os = Files.newOutputStream(tempFile)
+            ){
+                ByteStreams.copy(is, os);
+            }
 
             MultipartFile multipartFile = new ByteArrayMultipartFile(
-                    tempFile.getFileName().toString(),
-                    tempFile.getFileName().toString(),
-                    Files.probeContentType(tempFile),
+                    "image",
+                    FilenameUtils.getName(url.getPath()),
+                    contentType,
                     Files.readAllBytes(tempFile)
             );
+
 
             String directory = tempImageUrl.getTargetEntity().equalsIgnoreCase("USER") ?
                     "avatars" :
@@ -230,41 +232,6 @@ public class ImageProcessingService {
         }
     }
 
-    /**
-     * Уведомить пользователя о загрузке
-     *
-     * @param userId ID пользователя
-     * @param message сообщение
-     * @param success статус загрузки
-     */
-    private void notifyUser(String userId, String message, ImageStatus success) {
-        try {
-            messagingTemplate.convertAndSendToUser(
-                    userId,
-                    "/queue/notifications",
-                    new ImageUploadNotification().setMessage(message).setStatus(success)
-            );
-            log.info("Notification send to user {}: {}", userId, message);
-        } catch (Exception e){
-            log.error("Failed to send notification to user {}: {}", userId, e.getMessage());
-        }
-    }
-
-    /**
-     * Найти пользователя
-     *
-     * @param targetEntity сущность User или Extinct
-     * @param targetEntityId ID сущности
-     * @return ID пользователя
-     */
-    private String getUserIdForEntity(String targetEntity, Long targetEntityId) {
-        if ("user".equals(targetEntity)) {
-            return targetEntityId.toString();
-        } else if ("extinct".equals(targetEntity)) {
-            return extinctService.findById(targetEntityId).getCreator().getId().toString();
-        }
-        return null;
-    }
 
     /**
      * Получить расширение файла

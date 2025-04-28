@@ -63,11 +63,11 @@ springdoc:
     enabled: true
   packagesToScan: com.warlock
 
-#logging:
-#  level:
-#    org:
-#      springdoc: DEBUG
-#      springframework:
-#        web:
-#          socket: DEBUG
-#          messaging: DEBUG
+logging:
+  level:
+    org:
+      springdoc: DEBUG
+      springframework:
+        cache: TRACE
+        data:
+          redis: DEBUG

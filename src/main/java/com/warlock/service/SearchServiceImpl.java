@@ -9,12 +9,15 @@ import com.warlock.repository.UserRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "search")
 public class SearchServiceImpl implements SearchService {
 
     @Autowired
@@ -26,17 +29,20 @@ public class SearchServiceImpl implements SearchService {
     @Autowired
     private final UserRepository userRepository;
 
+    @Cacheable(key = "'stands:' + #query + ':' + #sortBy")
     @Override
     public @NonNull List<Stand> searchStands(String query, String sortBy){
         return standRepository.searchStands(query, sortBy);
 
     }
 
+    @Cacheable(key = "'extincts:' + #query + ':' + #sortBy")
     @Override
     public @NonNull List<Extinct> searchExtincts(String query, String sortBy){
         return extinctRepository.searchExtincts(query, sortBy);
     }
 
+    @Cacheable(key = "'users:' + #query")
     @Override
     public @NonNull List<User> searchUsers(String query){
         return userRepository.searchUsers(query);

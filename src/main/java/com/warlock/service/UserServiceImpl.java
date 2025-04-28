@@ -4,7 +4,9 @@ import com.warlock.repository.RoleRepository;
 import jakarta.persistence.EntityExistsException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -22,8 +24,10 @@ import java.util.List;
 
 import static java.util.Optional.ofNullable;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "users")
 public class UserServiceImpl implements UserService {
 
     @Autowired
@@ -39,6 +43,7 @@ public class UserServiceImpl implements UserService {
      *
      * @return список User
      */
+    @Cacheable(key = "'all'")
     @Override
     public @NonNull List<User> findAll() {
         return userRepository.findAll();
@@ -50,7 +55,7 @@ public class UserServiceImpl implements UserService {
      * @param userId id-идентификатор пользователя
      * @return User
      */
-//    @Cacheable(value = "users", key = "#id")
+    @Cacheable(key = "#userId")
     @Override
     public @NonNull User findById(@NonNull Long userId) {
         return userRepository.findById(userId)
@@ -63,6 +68,7 @@ public class UserServiceImpl implements UserService {
      * @param user пользователь
      * @return сохранённый пользователь
      */
+    @CachePut(key = "#result.id")
     @Override
     @Transactional
     public @NonNull User save(@NonNull User user){
@@ -83,6 +89,7 @@ public class UserServiceImpl implements UserService {
         if (userRepository.existsByEmail(request.getEmail())){
             throw new EntityExistsException("User with email " + request.getEmail() + " already exists");
         }
+        log.info("Trying to save user: {}", request);
         return save(request);
     }
 
@@ -93,12 +100,13 @@ public class UserServiceImpl implements UserService {
      * @param request данные для обновления
      * @return User
      */
-//    @CachePut(value = "users", key = "#id")
+    @CacheEvict(key = "#userId")
     @Override
     @Transactional
     public @NonNull User update(@NonNull Long userId, @NonNull User request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User " + userId + " is not found"));
+        log.info("Trying to update user: {} -> {}", user, request);
         userUpdate(user, request);
         return save(user);
     }
@@ -108,9 +116,10 @@ public class UserServiceImpl implements UserService {
      *
      * @param userId id удаляемого пользователя
      */
-//    @CacheEvict(value = "users", key = "#id")
+    @CacheEvict(key = "#userId")
     @Override
     public void delete(@NonNull Long userId) {
+        log.info("Deleting user with id: {}", userId);
         userRepository.deleteById(userId);
     }
 
@@ -146,6 +155,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " is not found"));
         Role role = roleRepository.findByName(ADMIN_ROLE)
                         .orElseThrow(() -> new EntityNotFoundException("Role with name " + ADMIN_ROLE + " is not found"));
+        log.info("Assign {} to user {}", role, user);
         user.setRole(role);
         return save(user);
     }
@@ -157,6 +167,7 @@ public class UserServiceImpl implements UserService {
      * @return User
      * @throws UsernameNotFoundException ошибка нахождения пользователя
      */
+    @Cacheable(key = "'login:' + #login")
     @Override
     @Transactional(readOnly = true)
     public @NonNull User getByLogin(@NonNull String login) throws UsernameNotFoundException {
@@ -178,7 +189,7 @@ public class UserServiceImpl implements UserService {
      *
      * @return User
      */
-//    @Cacheable(value = "users", key = "'current'")
+    @Cacheable(key = "'current'")
     @Override
     public @NonNull User getCurrentUser(){
         var auth = SecurityContextHolder.getContext().getAuthentication();
@@ -188,7 +199,7 @@ public class UserServiceImpl implements UserService {
         return getByLogin(auth.getName());
     }
 
-//    @Cacheable(value = "users", key = "#id")
+    @CachePut(key = "#userId")
     @Override
     public void updateUserImage(
             @NonNull Long userId,
@@ -197,6 +208,7 @@ public class UserServiceImpl implements UserService {
             @NonNull String mediumThumbnailUrl,
             @NonNull String largeThumbnailUrl
     ){
+        log.info("Uploading image URL's to user with id {}", userId);
         var user = findById(userId)
                 .setUrlImage(originalUrl)
                 .setSmallThumbnailUrl(smallThumbnailUrl)

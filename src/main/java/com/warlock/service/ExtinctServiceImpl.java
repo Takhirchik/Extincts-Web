@@ -7,7 +7,12 @@ import com.warlock.exceptions.AccessToResourcesException;
 import com.warlock.repository.ExtinctStatsRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.warlock.domain.Extinct;
@@ -20,8 +25,10 @@ import java.util.List;
 
 import static java.util.Optional.ofNullable;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "extincts")
 public class ExtinctServiceImpl implements ExtinctService{
 
     @Autowired
@@ -31,12 +38,14 @@ public class ExtinctServiceImpl implements ExtinctService{
     private final ExtinctStatsRepository extinctStatsRepository;
 
     //Получаем весь список пользователей
+    @Cacheable(key = "'all'")
     @Override
     public @NonNull List<Extinct> findAll() {
         return extinctRepository.findAll();
     }
 
     //Получаем пользователя по id
+    @Cacheable(key = "#extinctId")
     @Override
     public @NonNull Extinct findById(@NonNull Long extinctId) {
         return extinctRepository.findById(extinctId)
@@ -44,16 +53,19 @@ public class ExtinctServiceImpl implements ExtinctService{
     }
 
     //Создаем пользователя
+    @CachePut(key = "#result.id")
     @Override
     @Transactional
     public @NonNull Extinct createExtinct(@NonNull Extinct request) {
         request.setCreatedAt(LocalDate.now());
         request.setViews(0);
         request.setLikes(0);
+        log.info("User {} creating extinct {}", request.getCreator(), request);
         return extinctRepository.save(request);
     }
 
     //Обновляем пользователя по id
+    @CachePut(key = "#extinctId")
     @Override
     @Transactional
     public @NonNull Extinct update(@NonNull Long extinctId, @NonNull Extinct request) {
@@ -61,12 +73,15 @@ public class ExtinctServiceImpl implements ExtinctService{
                 .orElseThrow(() -> new EntityNotFoundException("Extinct " + extinctId + " is not found"));
         extinctUpdate(extinct, request);
 
+        log.info("User {} updating extinct {} -> {}", extinct.getCreator(), extinct, request);
         return extinctRepository.save(extinct);
     }
 
     //Удаляем пользователя по id
+    @CacheEvict(key = "#extinctId")
     @Override
     public void delete(@NonNull Long extinctId) {
+        log.info("Deleting extinct {}", extinctId);
         extinctRepository.deleteById(extinctId);
     }
 
@@ -76,6 +91,7 @@ public class ExtinctServiceImpl implements ExtinctService{
         ofNullable(request.getStand()).map(extinct::setStand);
     }
 
+    @CachePut(key = "#extinctId")
     @Override
     @Transactional
     public void incrementViews(@NonNull Long extinctId){
@@ -97,6 +113,7 @@ public class ExtinctServiceImpl implements ExtinctService{
         extinctStatsRepository.save(extinctStats);
     }
 
+    @CachePut(key = "#extinctId")
     @Override
     @Transactional
     public void incrementLikes(@NonNull Long extinctId){
@@ -128,6 +145,7 @@ public class ExtinctServiceImpl implements ExtinctService{
         }
     }
 
+    @CachePut(key = "#extinctId")
     @Override
     public void updateExtinctImage(
             @NonNull Long extinctId,
@@ -136,6 +154,7 @@ public class ExtinctServiceImpl implements ExtinctService{
             @NonNull String mediumThumbnailUrl,
             @NonNull String largeThumbnailUrl
     ){
+        log.info("Uploading image URL's to extinct with id {}", extinctId);
         var extinct = findById(extinctId)
                 .setUrlImage(originalUrl)
                 .setSmallThumbnailUrl(smallThumbnailUrl)
