@@ -21,18 +21,10 @@
             <column name="created_at" type="date" defaultValueDate="NOW()">
                 <constraints nullable="false"/>
             </column>
-            <column name="url_image" type="varchar(512)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="small_thumbnail_url" type="varchar(512)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="medium_thumbnail_url" type="varchar(512)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="large_thumbnail_url" type="varchar(512)">
-                <constraints nullable="false"/>
-            </column>
+            <column name="url_image" type="varchar(512)"/>
+            <column name="small_thumbnail_url" type="varchar(512)"/>
+            <column name="medium_thumbnail_url" type="varchar(512)"/>
+            <column name="large_thumbnail_url" type="varchar(512)"/>
             <column name="stand_id" type="bigint"/>
             <column name="creator_id" type="bigint">
                 <constraints nullable="false"/>

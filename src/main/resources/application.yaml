@@ -2,6 +2,8 @@ server:
   port: 8181
 
 spring:
+  profiles:
+    active: prod
   jpa:
     properties:
       hibernate:
@@ -9,14 +11,25 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: PATH_PATTERN_PARSER
-
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+  task:
+    scheduling:
+      pool:
+        size: 5
+      shutdown:
+        await-termination: true
+        await-termination-period: 60s
   redis:
     host: localhost
     port: 6379
   cache:
     type: redis
     redis:
-      time-to-live: 3600000
+      time-to-live: 600000
 
 token:
   signing:
@@ -26,9 +39,10 @@ token:
 minio:
    url: http://localhost:9000
    bucket-name: images
-   access-key: minioadmin
-   secret-key: minioadmin
+   access-key: minio_admin
+   secret-key: minio_admin
    secure: false
+   max-retries: 5
 
 image:
   small_thumbnail:
@@ -37,6 +51,7 @@ image:
     size: 300
   large_thumbnail:
     size: 600
+  temp-storage-duration: 86400000
 
 springdoc:
   api-docs:

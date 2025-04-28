@@ -3,6 +3,7 @@ package com.warlock.service;
 import com.warlock.domain.Role;
 import com.warlock.domain.User;
 import lombok.NonNull;
+import org.checkerframework.checker.units.qual.N;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
@@ -35,4 +36,12 @@ public interface UserService {
     User getByLogin(@NonNull String login);
 
     UserDetailsService userDetailsService();
+
+    void updateUserImage(
+            @NonNull Long userId,
+            @NonNull String originalUrl,
+            @NonNull String smallThumbnailUrl,
+            @NonNull String mediumThumbnailUrl,
+            @NonNull String largeThumbnailUrl
+    );
 }

@@ -5,6 +5,9 @@ import jakarta.persistence.EntityExistsException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -47,6 +50,7 @@ public class UserServiceImpl implements UserService {
      * @param userId id-идентификатор пользователя
      * @return User
      */
+//    @Cacheable(value = "users", key = "#id")
     @Override
     public @NonNull User findById(@NonNull Long userId) {
         return userRepository.findById(userId)
@@ -89,13 +93,14 @@ public class UserServiceImpl implements UserService {
      * @param request данные для обновления
      * @return User
      */
+//    @CachePut(value = "users", key = "#id")
     @Override
     @Transactional
     public @NonNull User update(@NonNull Long userId, @NonNull User request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User " + userId + " is not found"));
         userUpdate(user, request);
-        return userRepository.save(user);
+        return save(user);
     }
 
     /**
@@ -103,6 +108,7 @@ public class UserServiceImpl implements UserService {
      *
      * @param userId id удаляемого пользователя
      */
+//    @CacheEvict(value = "users", key = "#id")
     @Override
     public void delete(@NonNull Long userId) {
         userRepository.deleteById(userId);
@@ -132,6 +138,7 @@ public class UserServiceImpl implements UserService {
      * @param userId id-пользователя
      * @return User
      */
+//    @CachePut(value = "users", key = "#id")
     @Override
     @Transactional
     public @NonNull User assignRole(@NonNull Long userId){
@@ -140,7 +147,7 @@ public class UserServiceImpl implements UserService {
         Role role = roleRepository.findByName(ADMIN_ROLE)
                         .orElseThrow(() -> new EntityNotFoundException("Role with name " + ADMIN_ROLE + " is not found"));
         user.setRole(role);
-        return userRepository.save(user);
+        return save(user);
     }
 
     /**
@@ -171,6 +178,7 @@ public class UserServiceImpl implements UserService {
      *
      * @return User
      */
+//    @Cacheable(value = "users", key = "'current'")
     @Override
     public @NonNull User getCurrentUser(){
         var auth = SecurityContextHolder.getContext().getAuthentication();
@@ -178,5 +186,22 @@ public class UserServiceImpl implements UserService {
             throw new IllegalStateException("User not authenticated");
         }
         return getByLogin(auth.getName());
+    }
+
+//    @Cacheable(value = "users", key = "#id")
+    @Override
+    public void updateUserImage(
+            @NonNull Long userId,
+            @NonNull String originalUrl,
+            @NonNull String smallThumbnailUrl,
+            @NonNull String mediumThumbnailUrl,
+            @NonNull String largeThumbnailUrl
+    ){
+        var user = findById(userId)
+                .setUrlImage(originalUrl)
+                .setSmallThumbnailUrl(smallThumbnailUrl)
+                .setMediumThumbnailUrl(mediumThumbnailUrl)
+                .setLargeThumbnailUrl(largeThumbnailUrl);
+        save(user);
     }
 }

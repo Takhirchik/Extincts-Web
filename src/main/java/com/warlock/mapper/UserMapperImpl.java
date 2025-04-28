@@ -12,13 +12,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapperImpl implements UserMapper{
     @Override
-    @Deprecated
     public User fromRequestToEntity(
             UpdateUserRequest request,
-            String urlImage,
-            String smThumb,
-            String mdThumb,
-            String lgThumb,
             Role role
     ){
         User user = new User();
@@ -28,10 +23,6 @@ public class UserMapperImpl implements UserMapper{
         user.setEmail(request.getEmail());
         user.setBio(request.getBio());
         user.setRole(role);
-        user.setUrlImage(urlImage);
-        user.setSmallThumbnailUrl(smThumb);
-        user.setMediumThumbnailUrl(mdThumb);
-        user.setLargeThumbnailUrl(lgThumb);
         return user;
     }
 

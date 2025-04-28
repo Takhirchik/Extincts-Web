@@ -7,6 +7,7 @@ import com.warlock.model.shortResponse.ExtinctShortResponse;
 import com.warlock.model.shortResponse.StandShortResponse;
 import com.warlock.model.shortResponse.UserShortResponse;
 import com.warlock.service.ExtinctService;
+import com.warlock.service.MinioStorageService;
 import com.warlock.service.StandService;
 import com.warlock.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,7 +55,7 @@ public class AdminController {
     private final StandsMapper standsMapper;
     
     @Autowired
-    private final ImageStorageService imageStorageService;
+    private final MinioStorageService imageStorageService;
 
     @Operation(
             summary = "Найти все User",
@@ -186,7 +187,7 @@ public class AdminController {
                                 .filter(Objects::nonNull)
                                 .forEach(url -> {
                                     try {
-                                        imageStorageService.deleteImage(url);
+                                        imageStorageService.deleteFile(url);
                                     } catch (IOException e) {
                                         log.warn("Failed to delete image {}: {}", url, e.getMessage());
                                     }
@@ -232,7 +233,7 @@ public class AdminController {
                                 .filter(Objects::nonNull)
                                 .forEach(url -> {
                                     try {
-                                        imageStorageService.deleteImage(url);
+                                        imageStorageService.deleteFile(url);
                                     } catch (IOException e) {
                                         log.warn("Failed to delete image {}: {}", url, e.getMessage());
                                     }

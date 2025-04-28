@@ -127,4 +127,20 @@ public class ExtinctServiceImpl implements ExtinctService{
             throw new AccessToResourcesException("Access denied");
         }
     }
+
+    @Override
+    public void updateExtinctImage(
+            @NonNull Long extinctId,
+            @NonNull String originalUrl,
+            @NonNull String smallThumbnailUrl,
+            @NonNull String mediumThumbnailUrl,
+            @NonNull String largeThumbnailUrl
+    ){
+        var extinct = findById(extinctId)
+                .setUrlImage(originalUrl)
+                .setSmallThumbnailUrl(smallThumbnailUrl)
+                .setMediumThumbnailUrl(mediumThumbnailUrl)
+                .setLargeThumbnailUrl(largeThumbnailUrl);
+        extinctRepository.save(extinct);
+    }
 }

@@ -12,11 +12,7 @@ import com.warlock.model.shortResponse.UserShortResponse;
 public interface ExtinctMapper {
     Extinct fromCreateRequestToEntity(CreateExtinctRequest request,
                                 User creator,
-                                Stand stand,
-                                String urlImage,
-                                String smThumb,
-                                String mdThumb,
-                                String lgThumb
+                                Stand stand
     );
 
     Extinct fromUpdateRequestToEntity(UpdateExtinctRequest request, User creator, Stand stand);

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="create_temp_image_urls_table" author="takhirchik">
+        <createTable tableName="temp_image_urls">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="original_url" type="VARCHAR(2048)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="target_entity" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="target_entity_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="expires_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="retry_count" type="INTEGER" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="status" type="VARCHAR(20)" defaultValue="PENDING">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="temp_image_urls" indexName="idx_temp_image_urls_expires_at">
+            <column name="expires_at"/>
+        </createIndex>
+
+        <createIndex tableName="temp_image_urls" indexName="idx_temp_image_urls_target">
+            <column name="target_entity"/>
+            <column name="target_entity_id"/>
+        </createIndex>
+
+        <!-- Добавляем комментарии -->
+        <sql dbms="postgresql,h2">
+            COMMENT ON TABLE temp_image_urls IS 'Временные URL изображений для асинхронной обработки';
+            COMMENT ON COLUMN temp_image_urls.original_url IS 'Оригинальный URL изображения';
+            COMMENT ON COLUMN temp_image_urls.target_entity IS 'Тип целевой сущности (user/extinct)';
+            COMMENT ON COLUMN temp_image_urls.expires_at IS 'Время истечения срока действия временной записи';
+            COMMENT ON COLUMN temp_image_urls.status IS 'Статус обработки изображения';
+        </sql>
+    </changeSet>
+</databaseChangeLog>

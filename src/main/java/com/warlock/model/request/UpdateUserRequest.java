@@ -1,12 +1,12 @@
 package com.warlock.model.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.AssertFalse;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @Accessors(chain = true)
@@ -39,7 +39,4 @@ public class UpdateUserRequest {
     @Email(message = "Некорректный формат email")
     @Schema(description = "Новый email", example = "new.email@example.com")
     private String email;
-
-    @Schema(description = "Новое изображение профиля", format = "binary")
-    private MultipartFile image;
 }

@@ -1,25 +1,37 @@
 package com.warlock.controller;
 
+import com.warlock.domain.TempImageUrl;
 import com.warlock.exceptions.AccessToResourcesException;
+import com.warlock.exceptions.ImageProcessingException;
 import com.warlock.mapper.UserMapper;
+import com.warlock.model.records.ImageInfo;
+import com.warlock.model.request.CreateExtinctRequest;
 import com.warlock.model.request.UpdateUserRequest;
 import com.warlock.model.response.UserResponse;
+import com.warlock.service.ImageProcessingService;
+import com.warlock.service.MinioStorageService;
 import com.warlock.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.SchemaProperty;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -44,7 +56,7 @@ public class UserController {
     private final ImageProcessingService imageProcessingService;
 
     @Autowired
-    private final ImageStorageService imageStorageService;
+    private final MinioStorageService imageStorageService;
 
     @Operation(
             summary = "Получить текущего User",
@@ -154,34 +166,55 @@ public class UserController {
                     )
             }
     )
-    @PatchMapping(value = "/userId")
-    @PreAuthorize("IsAuthenticated()")
+    @PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponse> updateUser(
             @Parameter(description = "ID User", example = "1")
             @PathVariable Long userId,
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Данные для обновления",
-                    required = true,
-                    content = @Content(schema = @Schema(implementation = UpdateUserRequest.class))
+
+            @Parameter(
+                    description = "Данные в формате JSON",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = UpdateUserRequest.class)
+                    )
             )
-            @Valid @RequestBody UpdateUserRequest request){
+            @RequestPart(value = "request", required = false) @Valid UpdateUserRequest request,
+
+            @Parameter(
+                    description = "Файл изображения",
+                    content = @Content(mediaType = "image/*", schema = @Schema(format = "binary"))
+            )
+            @RequestPart(value = "image", required = false) MultipartFile imageFile,
+
+            @Parameter(description = "URL изображения")
+            @RequestPart(value = "url_image", required = false) String imageUrl
+    ){
+
         var user = userService.getCurrentUser();
         var upToDateUser = userService.findById(userId);
         
         if (!user.equals(upToDateUser)){
             throw new AccessToResourcesException("Access denied");
         }
-        
-        var images = imageProcessingService.processImage(request.getImage(), "avatars");
-        
-        var requestToUpdate = userMapper.fromRequestToEntity(request,
-                images.originalUrl(),
-                images.smallThumbnailUrl(),
-                images.mediumThumbnailUrl(),
-                images.largeThumbnailUrl(),
-                upToDateUser.getRole()
-        );
-        
+
+        var requestToUpdate = userMapper.fromRequestToEntity(request, upToDateUser.getRole());
+
+        if (imageFile != null && !imageFile.isEmpty()){
+            try {
+                var images = imageProcessingService.processImage(imageFile, "avatars");
+                requestToUpdate
+                        .setUrlImage(images.originalUrl())
+                        .setSmallThumbnailUrl(images.smallThumbnailUrl())
+                        .setMediumThumbnailUrl(images.mediumThumbnailUrl())
+                        .setLargeThumbnailUrl(images.largeThumbnailUrl());
+            } catch (IOException e){
+                throw new ImageProcessingException("Failed to process image");
+            }
+        } else if (imageUrl != null){
+            imageProcessingService.saveUrl(imageUrl, "USER", userId);
+        }
+
         var updatedUser = userService.update(userId, requestToUpdate);
         
         return new ResponseEntity<>(userMapper.fromEntityToResponse(updatedUser), HttpStatus.OK);
@@ -210,7 +243,7 @@ public class UserController {
             }
     )
     @DeleteMapping(value = "/{userId}")
-    @PreAuthorize("IsAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> deleteUser(
             @Parameter(description = "ID User", example = "1")
             @PathVariable Long userId
@@ -233,7 +266,7 @@ public class UserController {
                 .filter(Objects::nonNull)
                 .forEach(url -> {
                     try {
-                        imageStorageService.deleteImage(url);
+                        imageStorageService.deleteFile(url);
                     } catch (IOException e) {
                         log.warn("Failed to delete image {}: {}", url, e.getMessage());
                     }

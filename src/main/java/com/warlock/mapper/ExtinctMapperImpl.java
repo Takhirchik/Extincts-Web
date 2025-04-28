@@ -18,19 +18,11 @@ public class ExtinctMapperImpl implements ExtinctMapper {
     @Override
     public Extinct fromCreateRequestToEntity(CreateExtinctRequest request,
                                            User creator,
-                                           Stand stand,
-                                           String urlImage,
-                                           String smThumb,
-                                           String mdThumb,
-                                           String lgThumb
+                                           Stand stand
     ){
         Extinct extinct = new Extinct();
         extinct.setExtinctName(request.getExtinctName());
         extinct.setDescription(request.getDescription());
-        extinct.setUrlImage(urlImage);
-        extinct.setSmallThumbnailUrl(smThumb);
-        extinct.setMediumThumbnailUrl(mdThumb);
-        extinct.setLargeThumbnailUrl(lgThumb);
         extinct.setStand(stand);
         extinct.setCreator(creator);
         return extinct;

@@ -11,10 +11,6 @@ import com.warlock.model.shortResponse.UserShortResponse;
 public interface UserMapper {
     User fromRequestToEntity(
             UpdateUserRequest request,
-            String urlImage,
-            String smThumb,
-            String mdThumb,
-            String lgThumb,
             Role role
     );
     UserResponse fromEntityToResponse(User user);

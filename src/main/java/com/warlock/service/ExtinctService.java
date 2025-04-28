@@ -26,4 +26,12 @@ public interface ExtinctService {
     void incrementLikes(@NonNull Long extinctId);
 
     void isCreator(@NonNull Long extinctId, @NonNull User user);
+
+    void updateExtinctImage(
+            @NonNull Long extinctId,
+            @NonNull String originalUrl,
+            @NonNull String smallThumbnailUrl,
+            @NonNull String mediumThumbnailUrl,
+            @NonNull String largeThumbnailUrl
+    );
 }

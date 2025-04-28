@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @Accessors(chain = true)
@@ -30,16 +29,6 @@ public class CreateExtinctRequest {
     )
     private String description;
 
-    @Schema(
-            description = "Изображение Extinct",
-            requiredMode = Schema.RequiredMode.REQUIRED,
-            format = "binary"
-    )
-    private MultipartFile image;
-
-    @Schema(
-            description = "ID Stand, к которому привязан Extinct",
-            example = "1"
-    )
+    @Schema(description = "ID Stand, к которому привязан Extinct", example = "1")
     private Long standId;
 }

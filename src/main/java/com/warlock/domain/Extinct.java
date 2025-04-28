@@ -34,17 +34,17 @@ public class Extinct extends BaseDomain {
     @Column(name = "created_at", updatable = false)
     private LocalDate createdAt = LocalDate.now();
 
-    @Column(name = "url_image", nullable = false)
+    @Column(name = "url_image")
     private String urlImage;
 
     // Миниатюры
-    @Column(name = "small_thumbnail_url", nullable = false)
+    @Column(name = "small_thumbnail_url")
     private String smallThumbnailUrl;
 
-    @Column(name = "medium_thumbnail_url", nullable = false)
+    @Column(name = "medium_thumbnail_url")
     private String mediumThumbnailUrl;
 
-    @Column(name = "large_thumbnail_url", nullable = false)
+    @Column(name = "large_thumbnail_url")
     private String largeThumbnailUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)

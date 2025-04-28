@@ -1,9 +1,11 @@
 package com.warlock.controller;
 
+import com.warlock.exceptions.ImageProcessingException;
 import com.warlock.mapper.ExtinctMapper;
 import com.warlock.mapper.UserMapper;
 import com.warlock.model.request.CreateExtinctRequest;
 import com.warlock.model.request.UpdateExtinctRequest;
+import com.warlock.model.response.ExceptionResponse;
 import com.warlock.model.response.ExtinctResponse;
 import com.warlock.service.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,16 +19,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RestController
@@ -54,7 +57,7 @@ public class ExtinctController {
     private final ImageProcessingService imageProcessingService;
 
     @Autowired
-    private final ImageStorageService imageStorageService;
+    private final MinioStorageService imageStorageService;
 
     @Operation(
             summary = "Получить Extinct по ID",
@@ -108,38 +111,67 @@ public class ExtinctController {
 
     @Operation(
             summary = "Создать новый Extinct",
-            description = "Требует аутентификации. Загружает и обрабатывает изображения",
+            description = """
+        Требует аутентификации. Позволяет создать новый Extinct с изображением.
+        Можно загрузить изображение файлом (макс. 5 МБ) или по URL, но не оба одновременно.
+        При загрузке по URL изображение будет обработано асинхронно.
+        """,
             responses = {
-                    @ApiResponse(responseCode = "201", description = "Extinct успешно создан"),
-                    @ApiResponse(responseCode = "400", description = "Неверные данные запроса"),
-                    @ApiResponse(responseCode = "401", description = "Требуется аутентификация")
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Extinct успешно создан",
+                            content = @Content(schema = @Schema(implementation = ExtinctResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = """
+                                Неверные данные запроса. Возможные причины:
+                                 - Некорректный URL
+                                 - Невалидные данные
+                                """,
+                            content = @Content(schema = @Schema(implementation = ExceptionResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Требуется аутентификация",
+                            content = @Content(schema = @Schema(implementation = ExceptionResponse.class))
+                    )
             }
     )
-    @PostMapping(value = "/", consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ExtinctResponse> createExtinct(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Данные для создания вымершего вида",
-                    required = true,
-                    content = @Content(schema = @Schema(implementation = CreateExtinctRequest.class)))
-            @Valid @RequestBody CreateExtinctRequest request
+            @Parameter(description = "Данные в формате JSON")
+            @RequestPart(value = "request", required = false) @Valid CreateExtinctRequest request,
+
+            @Parameter(description = "Файл изображения")
+            @RequestPart(value = "image", required = false) MultipartFile imageFile,
+
+            @Parameter(description = "URL изображения")
+            @RequestPart(value = "url_image", required = false) String imageUrl
     ){
+
         var user = userService.getCurrentUser();
         var stand = request.getStandId() == null ? null : standService.findById(request.getStandId());
 
-        var images = imageProcessingService.processImage(request.getImage(), "extincts");
-
-        var extinct = extinctMapper.fromCreateRequestToEntity(
-                request,
-                user,
-                stand,
-                images.originalUrl(),
-                images.smallThumbnailUrl(),
-                images.mediumThumbnailUrl(),
-                images.largeThumbnailUrl()
-        );
-
+        var extinct = extinctMapper.fromCreateRequestToEntity(request, user, stand);
         var savedExtinct = extinctService.createExtinct(extinct);
+
+        if (imageFile != null && !imageFile.isEmpty()){
+            try {
+                var images = imageProcessingService.processImage(imageFile, "extincts");
+                extinct
+                        .setUrlImage(images.originalUrl())
+                        .setSmallThumbnailUrl(images.smallThumbnailUrl())
+                        .setMediumThumbnailUrl(images.mediumThumbnailUrl())
+                        .setLargeThumbnailUrl(images.largeThumbnailUrl());
+                extinctService.update(savedExtinct.getId(), savedExtinct);
+            } catch (IOException e){
+                throw new ImageProcessingException("Failed to process image");
+            }
+        } else if (imageUrl != null){
+            imageProcessingService.saveUrl(imageUrl, "EXTINCT", savedExtinct.getId());
+        }
 
         return new ResponseEntity<>(
                 extinctMapper.fromEntityToResponse(savedExtinct, userMapper.fromEntityToShortResponse(user)),
@@ -158,7 +190,7 @@ public class ExtinctController {
                     @ApiResponse(responseCode = "404", description = "Extinct не найден")
             }
     )
-    @PatchMapping(value = "/{extinctId}", consumes = APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/{extinctId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ExtinctResponse> updateExtinct(
             @Parameter(description = "ID Extinct", example = "1")
@@ -215,7 +247,7 @@ public class ExtinctController {
                 .filter(Objects::nonNull)
                 .forEach(url -> {
                     try {
-                        imageStorageService.deleteImage(url);
+                        imageStorageService.deleteFile(url);
                     } catch (IOException e) {
                         log.warn("Failed to delete image {}: {}", url, e.getMessage());
                     }
