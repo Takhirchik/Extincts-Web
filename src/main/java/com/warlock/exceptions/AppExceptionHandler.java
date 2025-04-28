@@ -20,7 +20,7 @@ public class AppExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponse> handleAll(Exception ex){
-        log.error("[{}]: Handle error", LocalDateTime.now());
+        log.error("[{}]: Handle error: {}", LocalDateTime.now(), ex.getMessage());
         return new ResponseEntity<>(
                 new ExceptionResponse(ex.getMessage(), Instant.now()),
                 HttpStatus.BAD_REQUEST
@@ -29,7 +29,7 @@ public class AppExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ExceptionResponse> handleEntityNotFound(EntityNotFoundException ex){
-        log.error("[{}]: Entity not found", LocalDateTime.now());
+        log.error("[{}]: Entity not found: {}", LocalDateTime.now(), ex.getMessage());
         return new ResponseEntity<>(
                 new ExceptionResponse(ex.getMessage(), Instant.now()),
                 HttpStatus.NOT_FOUND
@@ -38,7 +38,7 @@ public class AppExceptionHandler {
 
     @ExceptionHandler(EntityExistsException.class)
     public ResponseEntity<ExceptionResponse> handleEntityExists(EntityExistsException ex){
-        log.error("[{}]: Entity doesn't exist", LocalDateTime.now());
+        log.error("[{}]: Entity doesn't exist: {}", LocalDateTime.now(), ex.getMessage());
         return new ResponseEntity<>(
                 new ExceptionResponse(ex.getMessage(), Instant.now()),
                 HttpStatus.BAD_REQUEST
@@ -47,7 +47,7 @@ public class AppExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ExceptionResponse> handleIllegalArgument(IllegalArgumentException ex){
-        log.error("[{}]: Handle illegal argument", LocalDateTime.now());
+        log.error("[{}]: Handle illegal argument: {}", LocalDateTime.now(), ex.getMessage());
         return new ResponseEntity<>(
                 new ExceptionResponse(ex.getMessage(), Instant.now()),
                 HttpStatus.BAD_REQUEST
@@ -56,7 +56,7 @@ public class AppExceptionHandler {
 
     @ExceptionHandler(AccessToResourcesException.class)
     public ResponseEntity<ExceptionResponse> handleAccessToResources(AccessToResourcesException ex){
-        log.error("[{}]: Failed attempt to access to resources", LocalDateTime.now());
+        log.error("[{}]: Failed attempt to access to resources: {}", LocalDateTime.now(), ex.getMessage());
         return new ResponseEntity<>(
                 new ExceptionResponse(ex.getMessage(), Instant.now()),
                 HttpStatus.FORBIDDEN
@@ -65,7 +65,7 @@ public class AppExceptionHandler {
 
     @ExceptionHandler(ImageProcessingException.class)
     public ResponseEntity<ExceptionResponse> handleImageProcessing(ImageProcessingException ex){
-        log.error("[{}]: Failed to process image", LocalDateTime.now());
+        log.error("[{}]: Failed to process image: {}", LocalDateTime.now(), ex.getMessage());
         return new ResponseEntity<>(
                 new ExceptionResponse(ex.getMessage(), Instant.now()),
                 HttpStatus.BAD_REQUEST
@@ -74,7 +74,7 @@ public class AppExceptionHandler {
 
     @ExceptionHandler(PasswordConfirmationException.class)
     public ResponseEntity<ExceptionResponse> handlePasswordConfirmation(PasswordConfirmationException ex){
-        log.error("[{}]: Password are not identical", LocalDateTime.now());
+        log.error("[{}]: Password are not identical: {}", LocalDateTime.now(), ex.getMessage());
         return new ResponseEntity<>(
                 new ExceptionResponse(ex.getMessage(), Instant.now()),
                 HttpStatus.BAD_REQUEST
@@ -83,7 +83,7 @@ public class AppExceptionHandler {
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ExceptionResponse> handleIllegalState(IllegalStateException ex){
-        log.error("[{}]: Handle illegal state", LocalDateTime.now());
+        log.error("[{}]: Handle illegal state: {}", LocalDateTime.now(), ex.getMessage());
         return new ResponseEntity<>(
                 new ExceptionResponse(ex.getMessage(), Instant.now()),
                 HttpStatus.FORBIDDEN

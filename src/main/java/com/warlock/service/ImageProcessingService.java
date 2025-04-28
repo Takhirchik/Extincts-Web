@@ -135,6 +135,7 @@ public class ImageProcessingService {
     @Scheduled(fixedRate = 30000)
     @Transactional
     public void processPendingImages(){
+        log.info("Regularly processing pending images");
         List<TempImageUrl> pendingUrls = tempImageUrlRepository
                 .findByStatusAndExpiresAtAfter(ImageStatus.PENDING, LocalDateTime.now());
 
