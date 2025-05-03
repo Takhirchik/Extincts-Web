@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Autowired
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
 
     private static final String ADMIN_ROLE = "ROLE_ADMIN";
 
@@ -100,12 +100,10 @@ public class UserServiceImpl implements UserService {
      * @param request данные для обновления
      * @return User
      */
-    @CacheEvict(key = "#userId")
     @Override
     @Transactional
     public @NonNull User update(@NonNull Long userId, @NonNull User request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User " + userId + " is not found"));
+        User user = findById(userId);
         log.info("Trying to update user: {} -> {}", user, request);
         userUpdate(user, request);
         return save(user);
@@ -147,14 +145,11 @@ public class UserServiceImpl implements UserService {
      * @param userId id-пользователя
      * @return User
      */
-//    @CachePut(value = "users", key = "#id")
     @Override
     @Transactional
     public @NonNull User assignRole(@NonNull Long userId){
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " is not found"));
-        Role role = roleRepository.findByName(ADMIN_ROLE)
-                        .orElseThrow(() -> new EntityNotFoundException("Role with name " + ADMIN_ROLE + " is not found"));
+        User user = findById(userId);
+        Role role = roleService.findByName(ADMIN_ROLE);
         log.info("Assign {} to user {}", role, user);
         user.setRole(role);
         return save(user);
@@ -167,7 +162,7 @@ public class UserServiceImpl implements UserService {
      * @return User
      * @throws UsernameNotFoundException ошибка нахождения пользователя
      */
-    @Cacheable(key = "'login:' + #login")
+    @Cacheable(key = "#result.id")
     @Override
     @Transactional(readOnly = true)
     public @NonNull User getByLogin(@NonNull String login) throws UsernameNotFoundException {
@@ -189,7 +184,6 @@ public class UserServiceImpl implements UserService {
      *
      * @return User
      */
-    @Cacheable(key = "'current'")
     @Override
     public @NonNull User getCurrentUser(){
         var auth = SecurityContextHolder.getContext().getAuthentication();
@@ -199,9 +193,8 @@ public class UserServiceImpl implements UserService {
         return getByLogin(auth.getName());
     }
 
-    @CachePut(key = "#userId")
     @Override
-    public void updateUserImage(
+    public @NonNull User updateUserImage(
             @NonNull Long userId,
             @NonNull String originalUrl,
             @NonNull String smallThumbnailUrl,
@@ -214,6 +207,6 @@ public class UserServiceImpl implements UserService {
                 .setSmallThumbnailUrl(smallThumbnailUrl)
                 .setMediumThumbnailUrl(mediumThumbnailUrl)
                 .setLargeThumbnailUrl(largeThumbnailUrl);
-        save(user);
+        return save(user);
     }
 }

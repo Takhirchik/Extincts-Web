@@ -36,7 +36,7 @@ public class StandServiceImpl implements StandService {
     private final StandRepository standRepository;
 
     @Autowired
-    private final ExtinctRepository extinctRepository;
+    private final ExtinctService extinctService;
 
     @Autowired
     private final StandStatsRepository standStatsRepository;
@@ -65,20 +65,25 @@ public class StandServiceImpl implements StandService {
                 .orElseThrow(() -> new EntityNotFoundException("Stand " + standId + " is not found"));
     }
 
+    @CachePut(key = "#result.id")
+    @Override
+    @Transactional
+    public @NonNull Stand save(@NonNull Stand stand){
+        return standRepository.save(stand);
+    }
+
     /**
      * создать стенд
      *
      * @param request стенд
      * @return созданный стенд
      */
-    @CachePut(key = "#result.id")
     @Override
-    @Transactional
     public @NonNull Stand createStand(@NonNull Stand request) {
         request.setCreatedAt(LocalDate.now());
         request.setViews(0);
         log.info("User {} creating stand {}", request.getCreator(), request);
-        return standRepository.save(request);
+        return save(request);
     }
 
     /**
@@ -88,16 +93,13 @@ public class StandServiceImpl implements StandService {
      * @param request новые данные стенда
      * @return обновлённый стенд
      */
-    @CachePut(key = "#standId")
     @Override
-    @Transactional
     public @NonNull Stand update(@NonNull Long standId, @NonNull Stand request) {
-        Stand stand = standRepository.findById(standId)
-                .orElseThrow(() -> new EntityNotFoundException("Stand " + standId + " is not found"));
+        Stand stand = findById(standId);
         log.info("User {} updating stand {} -> {}", stand.getCreator(), stand, request);
         standUpdate(stand, request);
 
-        return standRepository.save(stand);
+        return save(stand);
     }
 
     /**
@@ -122,14 +124,12 @@ public class StandServiceImpl implements StandService {
      *
      * @param standId ID стенда
      */
-    @CachePut(key = "#standId")
     @Override
     @Transactional
     public void incrementViews(@NonNull Long standId){
-        Stand stand = standRepository.findById(standId)
-                .orElseThrow(() -> new EntityNotFoundException("Stand with id " + standId + " is not found"));
+        Stand stand = findById(standId);
         stand.setViews(stand.getViews() + 1);
-        standRepository.save(stand);
+        save(stand);
         var date = LocalDate.now();
         StandStats standStats = standStatsRepository.findByStandAndDate(stand, date)
                 .orElse(null);
@@ -154,7 +154,7 @@ public class StandServiceImpl implements StandService {
     @Cacheable(key = "'extincts:' + #stand.id")
     @Override
     public @NonNull List<Extinct> findAllExtincts(@NonNull Stand stand){
-        return extinctRepository.findAllExtinctsByStandSortedByCreatedAt(stand);
+        return extinctService.findAllExtincts(stand);
     }
 
     /**
@@ -165,8 +165,7 @@ public class StandServiceImpl implements StandService {
      */
     @Override
     public void isCreator(@NonNull Long standId, @NonNull User user){
-        Stand stand = standRepository.findById(standId)
-                .orElseThrow(() -> new EntityNotFoundException("Stand with id " + standId + " is not found"));
+        Stand stand = findById(standId);
         if (!stand.getCreator().equals(user)){
             throw new AccessToResourcesException("Access denied");
         }
@@ -181,10 +180,8 @@ public class StandServiceImpl implements StandService {
     @CacheEvict(key = "'extincts:' + #standId")
     @Override
     public void addExtinct(@NonNull Long standId, @NonNull Long extinctId){
-        Stand stand = standRepository.findById(standId)
-                .orElseThrow(() -> new EntityNotFoundException("Stand with id " + standId + " is not found"));
-        Extinct extinct = extinctRepository.findById(extinctId)
-                .orElseThrow(() -> new EntityNotFoundException("Extinct " + extinctId + " is not found"));
+        Stand stand = findById(standId);
+        Extinct extinct = extinctService.findById(extinctId);
 
         if (!stand.getCreator().equals(extinct.getCreator())){
             throw new RuntimeException("Cannot to add Extinct with another creator");
@@ -195,8 +192,8 @@ public class StandServiceImpl implements StandService {
         log.info("Adding extinct {} to a stand {}", extinct, stand);
         stand.getExtincts().add(extinct);
         extinct.setStand(stand);
-        standRepository.save(stand);
-        extinctRepository.save(extinct);
+        save(stand);
+        extinctService.save(extinct);
     }
 
     /**
@@ -208,17 +205,14 @@ public class StandServiceImpl implements StandService {
     @CacheEvict(key = "'extincts:' + #standId")
     @Override
     public void deleteExtinct(@NonNull Long standId, @NonNull Long extinctId){
-        Stand stand = standRepository.findById(standId)
-                .orElseThrow(() -> new EntityNotFoundException("Stand with id " + standId + " is not found"));
-        Extinct extinct = extinctRepository.findById(extinctId)
-                .orElseThrow(() -> new EntityNotFoundException("Extinct " + extinctId + " is not found"));
-
+        Stand stand = findById(standId);
+        Extinct extinct = extinctService.findById(extinctId);
         if (!stand.getExtincts().contains(extinct)){
             throw new RuntimeException("Extinct not on this stand");
         }
         log.info("Deleting extinct {} from a stand {}", extinct, stand);
         stand.getExtincts().remove(extinct);
         extinct.setStand(null);
-        standRepository.save(stand);
+        save(stand);
     }
 }

@@ -15,6 +15,9 @@ public interface StandService {
     Stand findById(@NonNull Long standId);
 
     @NonNull
+    Stand save(@NonNull Stand stand);
+
+    @NonNull
     Stand createStand(@NonNull Stand request);
 
     @NonNull

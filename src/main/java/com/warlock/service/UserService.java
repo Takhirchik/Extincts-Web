@@ -37,7 +37,8 @@ public interface UserService {
 
     UserDetailsService userDetailsService();
 
-    void updateUserImage(
+    @NonNull
+    User updateUserImage(
             @NonNull Long userId,
             @NonNull String originalUrl,
             @NonNull String smallThumbnailUrl,

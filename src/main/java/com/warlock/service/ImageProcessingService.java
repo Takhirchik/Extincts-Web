@@ -218,13 +218,13 @@ public class ImageProcessingService {
      * @param imageInfo все ссылки с изображениями
      */
     private void updateEntityWithImages(String targetEntity, Long targetEntityId, ImageInfo imageInfo) {
-        if ("user".equals(targetEntity)) {
+        if ("USER".equals(targetEntity)) {
             userService.updateUserImage(targetEntityId,
                     imageInfo.originalUrl(),
                     imageInfo.smallThumbnailUrl(),
                     imageInfo.mediumThumbnailUrl(),
                     imageInfo.largeThumbnailUrl());
-        } else if ("extinct".equals(targetEntity)) {
+        } else if ("EXTINCT".equals(targetEntity)) {
             extinctService.updateExtinctImage(targetEntityId,
                     imageInfo.originalUrl(),
                     imageInfo.smallThumbnailUrl(),

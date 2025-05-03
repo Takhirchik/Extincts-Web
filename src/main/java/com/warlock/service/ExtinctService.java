@@ -1,8 +1,10 @@
 package com.warlock.service;
 
 import com.warlock.domain.Extinct;
+import com.warlock.domain.Stand;
 import com.warlock.domain.User;
 import lombok.NonNull;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 
@@ -12,6 +14,9 @@ public interface ExtinctService {
 
     @NonNull
     Extinct findById(@NonNull Long extinctId);
+
+    @NonNull
+    Extinct save(@NonNull Extinct extinct);
 
     @NonNull
     Extinct createExtinct(@NonNull Extinct request);
@@ -27,7 +32,11 @@ public interface ExtinctService {
 
     void isCreator(@NonNull Long extinctId, @NonNull User user);
 
-    void updateExtinctImage(
+    @NonNull
+    List<Extinct> findAllExtincts(@NonNull Stand stand);
+
+    @NonNull
+    Extinct updateExtinctImage(
             @NonNull Long extinctId,
             @NonNull String originalUrl,
             @NonNull String smallThumbnailUrl,

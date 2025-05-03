@@ -9,10 +9,14 @@ services:
       - "8181:8181"
     depends_on:
       - postgres-db
+      - redis
+      - minio-s3
     environment:
       SERVER_PORT: 8181
       SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/extincts-web-db
+      MINIO_URL: http://minio-s3:9000
+      SPRING_REDIS_HOST: redis
 
   postgres-db:
     image: postgres:latest
