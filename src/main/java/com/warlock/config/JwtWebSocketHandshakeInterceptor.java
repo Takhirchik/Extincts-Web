@@ -48,7 +48,7 @@ public class JwtWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
                 var user = userService.getByLogin(login);
                 if (jwtService.isTokenValid(token, userDetails)) {
-                    attributes.put("userId", user.getId());
+                    attributes.put("username", user.getLogin());
                     log.info("[WebSocket] User {} is successfully initialized WebSocket connection", user);
                     return true;
                 } else {
