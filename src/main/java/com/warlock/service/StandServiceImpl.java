@@ -4,7 +4,6 @@ import com.warlock.domain.Extinct;
 import com.warlock.domain.StandStats;
 import com.warlock.domain.User;
 import com.warlock.exceptions.AccessToResourcesException;
-import com.warlock.repository.ExtinctRepository;
 import com.warlock.repository.StandStatsRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

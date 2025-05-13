@@ -1,11 +1,8 @@
 package com.warlock.controller;
 
-import com.warlock.domain.TempImageUrl;
 import com.warlock.exceptions.AccessToResourcesException;
 import com.warlock.exceptions.ImageProcessingException;
 import com.warlock.mapper.UserMapper;
-import com.warlock.model.records.ImageInfo;
-import com.warlock.model.request.CreateExtinctRequest;
 import com.warlock.model.request.UpdateUserRequest;
 import com.warlock.model.response.UserResponse;
 import com.warlock.service.ImageProcessingService;
@@ -16,12 +13,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.SchemaProperty;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +23,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 

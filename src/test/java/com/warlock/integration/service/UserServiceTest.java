@@ -4,6 +4,7 @@ import com.warlock.domain.Role;
 import com.warlock.domain.User;
 import com.warlock.repository.RoleRepository;
 import com.warlock.repository.UserRepository;
+import com.warlock.service.RoleService;
 import com.warlock.service.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,20 +28,19 @@ class UserServiceTest {
     private UserRepository userRepository;
     
     @Autowired
-    private RoleRepository roleRepository;
+    private RoleService roleService;
 
     private UserServiceImpl userService;
 
     @BeforeEach
     void setUp() {
-        userService = new UserServiceImpl(userRepository, roleRepository);
+        userService = new UserServiceImpl(userRepository, roleService);
     }
 
     @Test
     @Transactional
     void update_ShouldModifyUserData() {
-        Role role = new Role().setName("ROLE_USER");
-        role = roleRepository.save(role);
+        Role role = roleService.findByName("ROLE_USER");
         User existing = new User();
         existing.setNickname("extistingNickname");
         existing.setLogin("existing");

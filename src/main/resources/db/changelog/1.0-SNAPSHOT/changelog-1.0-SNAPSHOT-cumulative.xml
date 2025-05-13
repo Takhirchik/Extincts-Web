@@ -16,4 +16,5 @@
     <include file="2025.04.03--02-create_changeset_stand_stats_table.xml" relativeToChangelogFile="true"/>
     <include file="2025.04.03--03-create_changeset_extinct_stats_table.xml" relativeToChangelogFile="true"/>
     <include file="2025.04.16--01-create_changeset_temp_images_table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.05.02--01-create_changeset_chatmessage_table.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

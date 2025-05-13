@@ -13,23 +13,11 @@ public class ChatMessageResponse {
     @Schema(description = "ID сообщения", example = "1")
     private Long id;
 
-    @Schema(description = "ID отправителя", example = "2")
-    private Long senderId;
-
     @Schema(description = "Имя отправителя", example = "ivan_ivanov")
     private String senderName;
 
-    @Schema(description = "Аватар отправителя", example = "https://storage.com/avatars/1_thumb.jpg")
-    private String senderSmallThumbnailUrl;
-
-    @Schema(description = "ID получателя", example = "1")
-    private Long recipientId;
-
     @Schema(description = "Имя получателя", example = "petr_petrov")
     private String recipientName;
-
-    @Schema(description = "Аватар получаетеля", example = "https://storage.com/avatars/2_thumb.jpg")
-    private String recipientSmallThumbnailUrl;
 
     @Schema(description = "Текст сообщения", example = "Привет!")
     private String content;

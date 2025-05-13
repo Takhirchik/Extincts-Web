@@ -21,8 +21,6 @@ import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.List;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -43,31 +41,28 @@ public class SecurityConfig {
                     return corsConfiguration;
                 }))
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/sign-in", "/sign-up").permitAll()
-                        .requestMatchers("/stand/**", "/extinct/**", "/user/**").permitAll()
-                        .requestMatchers("/search/**", "/popular/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
-                        .requestMatchers("/websocket/**", "/topic/**", "/queue/**", "/app/**").permitAll()
-                        .requestMatchers("/messages", "/messages/**").authenticated()
+                        .requestMatchers(
+                                "/sign-in",
+                                "/sign-up",
+                                "/stand/**",
+                                "/extinct/**",
+                                "/user/**",
+                                "/search/**",
+                                "/popular/**",
+                                "/swagger-ui/**",
+                                "/api-docs/**"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/messenger",
+                                "/messenger/**"
+                        ).authenticated()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(
                         SessionCreationPolicy.STATELESS
                 ))
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .httpBasic(withDefaults()) // Для отладки
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login")
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                        .permitAll()
-                );
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

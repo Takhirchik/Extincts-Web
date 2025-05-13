@@ -1,6 +1,5 @@
 package com.warlock.service;
 
-import com.warlock.repository.RoleRepository;
 import jakarta.persistence.EntityExistsException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
