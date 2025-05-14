@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -50,7 +51,8 @@ public class SecurityConfig {
                                 "/search/**",
                                 "/popular/**",
                                 "/swagger-ui/**",
-                                "/api-docs/**"
+                                "/api-docs/**",
+                                "/websocket/**"
                         ).permitAll()
                         .requestMatchers(
                                 "/messenger",
@@ -62,7 +64,11 @@ public class SecurityConfig {
                         SessionCreationPolicy.STATELESS
                 ))
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .headers(headers -> headers
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable) // Разрешить встраивание в фреймы
+                        .contentTypeOptions(HeadersConfigurer.ContentTypeOptionsConfig::disable) // Отключить проверку MIME-типов
+                );
         return http.build();
     }
 

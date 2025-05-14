@@ -1,5 +1,7 @@
 package com.warlock.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.warlock.domain.common.BaseDomain;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +21,7 @@ import java.util.Objects;
 @Accessors(chain = true)
 @Entity
 @Table(name="users")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User extends BaseDomain implements UserDetails {
     @Column(name = "nickname", nullable = false)
     private String nickname;
@@ -51,6 +54,7 @@ public class User extends BaseDomain implements UserDetails {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.getName()));
@@ -80,6 +84,7 @@ public class User extends BaseDomain implements UserDetails {
                 "}";
     }
 
+    @JsonIgnore
     @Override
     public String getUsername(){
         return this.login;

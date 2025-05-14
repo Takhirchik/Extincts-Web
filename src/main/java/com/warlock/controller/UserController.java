@@ -77,6 +77,29 @@ public class UserController {
     }
 
     @Operation(
+            summary = "Получить пользователя по логину",
+            description = "Возвращает пользователя",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Успешно найден пользователь",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserResponse.class)))
+                    )
+            }
+    )
+    @GetMapping("/login/{login}")
+    public ResponseEntity<UserResponse> getByLogin(
+            @Parameter(description = "Логин пользователя", example = "mr.admin.login")
+            @PathVariable String login
+    ) {
+       var user = userService.getByLogin(login);
+       return new ResponseEntity<>(
+               userMapper.fromEntityToResponse(user),
+               HttpStatus.OK
+       );
+    }
+
+    @Operation(
             summary = "Получить всех User",
             description = "Возвращает список всех пользователей (кроме текущего)",
             responses = {

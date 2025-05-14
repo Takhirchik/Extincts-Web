@@ -161,7 +161,6 @@ public class UserServiceImpl implements UserService {
      * @return User
      * @throws UsernameNotFoundException ошибка нахождения пользователя
      */
-    @Cacheable(key = "#result.id")
     @Override
     @Transactional(readOnly = true)
     public @NonNull User getByLogin(@NonNull String login) throws UsernameNotFoundException {

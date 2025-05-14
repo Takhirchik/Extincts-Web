@@ -2,6 +2,7 @@ package com.warlock.service;
 
 import com.warlock.domain.ChatMessage;
 import com.warlock.domain.User;
+import com.warlock.model.UserActivity;
 import com.warlock.repository.ChatMessageRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -53,8 +55,24 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public @NonNull List<ChatMessage> getConversation(@NonNull User user1, @NonNull User user2) {
         return chatMessageRepository
-                .findBySenderAndRecipientOrRecipientAndSenderOrderByTimestamp(
-                        user1, user2, user2, user1
-                );
+                .findBySenderAndRecipientOrRecipientAndSenderOrderByTimestamp(user1, user2);
+    }
+
+    private final Set<Long> onlineUsers = ConcurrentHashMap.newKeySet();
+
+    @Override
+    public void userConnected(@NonNull Long userId){
+        onlineUsers.add(userId);
+    }
+
+
+    @Override
+    public void userDisconnected(@NonNull Long userId){
+        onlineUsers.remove(userId);
+    }
+
+    @Override
+    public Set<Long> getOnlineUsersIds(){
+        return Collections.unmodifiableSet(onlineUsers);
     }
 }

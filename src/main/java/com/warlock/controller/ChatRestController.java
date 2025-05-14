@@ -1,7 +1,10 @@
 package com.warlock.controller;
 
+import com.warlock.domain.User;
 import com.warlock.mapper.ChatMessageMapper;
+import com.warlock.model.UserActivity;
 import com.warlock.model.response.ChatMessageResponse;
+import com.warlock.model.response.UserResponse;
 import com.warlock.service.ChatService;
 import com.warlock.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -62,6 +66,44 @@ public class ChatRestController {
                 chatService.getConversation(currentUser, recipient)
                         .stream()
                         .map(chatMapper::fromEntityToResponse)
+                        .collect(Collectors.toList()),
+                HttpStatus.OK
+        );
+    }
+
+    @Operation(
+            summary = "Получить всех статусов всех пользователей",
+            description = "Возвращает список статусов всех пользователей (кроме текущего)",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Успешное получение данных",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserResponse.class)))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Требуется аутентификация"
+                    )
+            }
+    )
+    @GetMapping("/online-users")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<UserActivity>> getOnlineUsers()
+    {
+        var currentUser = userService.getCurrentUser();
+        var allUsers = userService.findAll()
+                .stream()
+                .filter(user -> !user.getId().equals(currentUser.getId()))
+                .toList();
+        var onlineUsers = chatService.getOnlineUsersIds();
+
+        return new ResponseEntity<>(
+                allUsers
+                        .stream()
+                        .map(user -> new UserActivity()
+                                .setId(user.getId())
+                                .setNickname(user.getNickname())
+                                .setOnline(onlineUsers.contains(user.getId())))
                         .collect(Collectors.toList()),
                 HttpStatus.OK
         );

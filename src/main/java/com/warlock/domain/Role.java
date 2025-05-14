@@ -1,5 +1,6 @@
 package com.warlock.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.warlock.domain.common.BaseDomain;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import java.util.Objects;
 @Accessors(chain = true)
 @Entity
 @Table(name="roles")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Role extends BaseDomain implements GrantedAuthority {
 
     @Column(name="name", nullable=false, unique=true)

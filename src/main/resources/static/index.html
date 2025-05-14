@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.0/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        .online { color: green; }
+        .offline { color: red; }
+        .user { cursor: pointer; margin: 5px; }
+        .message { margin: 5px; padding: 5px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+<label for="jwt-token"></label><input type="text" id="jwt-token" placeholder="JWT Token">
+<button onclick="connect()">Connect</button>
+
+<div id="chat-ui" style="display: none;">
+    <div id="user-list"></div>
+    <div id="chat-box">
+        <div id="messages"></div>
+        <label for="message-input"></label><input type="text" id="message-input">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    let stompClient = null;
+    let currentRecipientId = null;
+
+    function connect() {
+        const token = document.getElementById('jwt-token').value;
+        if (!token) {
+            alert("Токен не указан!");
+            return;
+        }
+
+        const socket = new SockJS(`http://localhost:8181/websocket?token=${token}`);
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, () => {
+            document.getElementById('chat-ui').style.display = 'block';
+            stompClient.subscribe('/user/queue/messages', (message) => {
+                const msg = JSON.parse(message.body);
+                appendMessage(msg);
+            });
+            stompClient.subscribe('/topic/activity', (activity) => {
+                updateUserStatus(JSON.parse(activity.body));
+            });
+            fetchUsers();
+        }, function(error) {
+            console.error("Ошибка подключения:", error);
+        });
+    }
+
+    function fetchUsers() {
+        fetch('http://localhost:8181/messenger/online-users', {
+            headers: { 'Authorization': `Bearer ${document.getElementById('jwt-token').value}` }
+        }).then(response => response.json()).then(users => {
+            console.log("Received users:", users);
+            document.getElementById('user-list').innerHTML = users.map(user => `
+                <div class="user" onclick="selectUser(${user.id})">
+                    ${user.nickname}
+                    <span class="${user.online ? 'online' : 'offline'}">0</span>
+                </div>
+            `).join('');
+        });
+    }
+
+    function selectUser(userId) {
+        currentRecipientId = userId;
+        fetch(`http://localhost:8181/messenger/${userId}`, {
+            headers: { 'Authorization': `Bearer ${document.getElementById('jwt-token').value}` }
+        }).then(response => response.json()).then(messages => {
+            document.getElementById('messages').innerHTML = messages.map(msg => `
+                <div class="message">${msg.senderName}: ${msg.content}</div>
+            `).join('');
+        });
+    }
+
+    function sendMessage() {
+        stompClient.send("/app/chat/send", {}, JSON.stringify({
+            recipientId: currentRecipientId,
+            content: document.getElementById('message-input').value
+        }));
+        document.getElementById('message-input').value = '';
+    }
+
+    function appendMessage(msg) {
+       const messagesDiv = document.getElementById('messages');
+       messagesDiv.innerHTML += `
+            <div class="message">${msg.senderName}: ${msg.content}</div>
+        `;
+    }
+
+    function updateUserStatus(activity) {
+        const users = document.querySelectorAll('.user');
+        users.forEach(userElement => {
+            if (userElement.textContent.includes(activity.nickname)) {
+                const statusIndicator = userElement.querySelector('span');
+                statusIndicator.className = activity.online ? 'online' : 'offline';
+            }
+        });
+    }
+</script>
+</body>
+</html>

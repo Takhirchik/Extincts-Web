@@ -1,6 +1,9 @@
 package com.warlock.model.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -9,14 +12,14 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @Schema(description = "Сообщение")
 public class ChatMessageRequest {
-    @Schema(description = "ID получателя", example = "1")
+    @Schema(description = "ID получателя сообщения", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "ID получателя обязателен")
+    @Positive(message = "ID получателя должен быть положительным числом")
     private Long recipientId;
 
-    @Size(max = 1000, message = "Описание не должно превышать 1000 символов")
-    @Schema(
-            description = "Содержание сообщения",
-            example = "Привет! Как дела?",
-            maxLength = 1000
-    )
+    @Schema(description = "Текст сообщения", example = "Привет!",
+            requiredMode = Schema.RequiredMode.REQUIRED, maxLength = 2000)
+    @NotBlank(message = "Текст сообщения обязателен")
+    @Size(min = 1, max = 2000, message = "Сообщение должно содержать от 1 до 2000 символов")
     private String content;
 }

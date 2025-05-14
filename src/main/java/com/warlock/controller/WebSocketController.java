@@ -40,11 +40,18 @@ public class WebSocketController {
 
         // Отправка получателю
         messagingTemplate.convertAndSendToUser(
-                recipient.getId().toString(),
+                recipient.getUsername(),
                 "/queue/messages",
                 chatMessageMapper.fromEntityToResponse(savedMessage)
         );
-        log.info("{} отправил сообщение {}", sender.getNickname(), recipient.getNickname());
+
+        messagingTemplate.convertAndSendToUser(
+                sender.getUsername(),
+                "/queue/messages",
+                chatMessageMapper.fromEntityToResponse(savedMessage)
+        );
+
+        log.info("[WebSocketChat] {} send a message {}", sender.getNickname(), recipient.getNickname());
     }
 
     // Уведомления о подключении/отключении
@@ -54,12 +61,17 @@ public class WebSocketController {
         String login = headers.getUser().getName();
 
         var user = userService.getByLogin(login);
+        var id = user.getId();
+        var nickname = user.getNickname();
 
-        messagingTemplate.convertAndSend(
-                "/topic/activity",
-                new UserActivity().setNickname(user.getNickname()).setOnline(true)
+        chatMessageService.userConnected(id);
+        broadcastUserActivity(id, nickname, true);
+        log.info(
+                "[WebSocketChat] Client {} connected: sessionId={}, headers={}",
+                nickname,
+                headers.getSessionId(),
+                headers
         );
-        log.info("Клиент подключился к сессии: sessionId={}, headers={}", headers.getSessionId(), headers);
     }
 
     @EventListener
@@ -68,11 +80,28 @@ public class WebSocketController {
         String login = headers.getUser().getName();
 
         var user = userService.getByLogin(login);
+        var id = user.getId();
+        var nickname = user.getNickname();
 
+        chatMessageService.userDisconnected(id);
+        broadcastUserActivity(id, nickname, false);
+        log.info(
+                "[WebSocketChat] Client {} disconnected: sessionId={}",
+                nickname,
+                headers.getSessionId()
+        );
+    }
+
+    private void broadcastUserActivity(Long userId, String nickname, boolean status){
         messagingTemplate.convertAndSend(
                 "/topic/activity",
-                new UserActivity().setNickname(user.getNickname()).setOnline(false)
+                new UserActivity().setId(userId).setNickname(nickname).setOnline(status)
         );
-        log.info("Клиент отключился от сессии: sessionId={}", headers.getSessionId());
     }
+
+//    private String getDialogId(Long user1, Long user2){
+//        return user1 < user2 ?
+//                user1.toString() + '_' + user2 :
+//                user2.toString() + '_' + user1;
+//    }
 }
