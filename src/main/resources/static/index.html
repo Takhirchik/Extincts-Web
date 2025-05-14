@@ -9,12 +9,19 @@
         .offline { color: red; }
         .user { cursor: pointer; margin: 5px; }
         .message { margin: 5px; padding: 5px; border: 1px solid #ddd; }
+        #current-user {
+            background: #f0f0f0;
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
 <label for="jwt-token"></label><input type="text" id="jwt-token" placeholder="JWT Token">
 <button onclick="connect()">Connect</button>
 
+<div id="current-user" style="display: none; position: fixed; top: 10px; right: 10px; font-weight: bold;"></div>
 <div id="chat-ui" style="display: none;">
     <div id="user-list"></div>
     <div id="chat-box">
@@ -27,6 +34,8 @@
 <script>
     let stompClient = null;
     let currentRecipientId = null;
+    let currentUserId = null;
+    let currentChatTopicId = null;
 
     function connect() {
         const token = document.getElementById('jwt-token').value;
@@ -40,13 +49,10 @@
 
         stompClient.connect({}, () => {
             document.getElementById('chat-ui').style.display = 'block';
-            stompClient.subscribe('/user/queue/messages', (message) => {
-                const msg = JSON.parse(message.body);
-                appendMessage(msg);
-            });
             stompClient.subscribe('/topic/activity', (activity) => {
                 updateUserStatus(JSON.parse(activity.body));
             });
+            fetchCurrentUser();
             fetchUsers();
         }, function(error) {
             console.error("Ошибка подключения:", error);
@@ -67,9 +73,48 @@
         });
     }
 
+    function fetchCurrentUser() {
+        const currentUserDiv = document.getElementById('current-user');
+        fetch('http://localhost:8181/user/current', {
+            headers: { 'Authorization': `Bearer ${document.getElementById('jwt-token').value}` }
+        }).then(response => {
+            if (!response.ok) {
+                currentUserDiv.style.display = 'none';
+                throw new Error('Ошибка авторизации');
+            }
+            return response.json();
+        }).then(user => {
+            currentUserId = user.id;
+            currentUserDiv.textContent = user.nickname;
+            currentUserDiv.style.display = 'block';
+        }).catch(error => {
+            console.error('Ошибка:', error);
+            currentUserDiv.style.display = 'none';
+            alert('Для отображения имени требуется авторизация');
+        });
+    }
+
     function selectUser(userId) {
         currentRecipientId = userId;
-        fetch(`http://localhost:8181/messenger/${userId}`, {
+
+        if (currentChatTopicId){
+            currentChatTopicId.unsubscribe();
+        }
+
+        const dialogId = getDialogId(currentUserId, currentRecipientId);
+        currentChatTopicId = stompClient.subscribe(
+            `/topic/messenger/${dialogId}`,
+            (message) => {
+                const msg = JSON.parse(message.body);
+                appendMessage(msg);
+            }
+        );
+
+        fetchMessages()
+    }
+
+    function fetchMessages() {
+        fetch(`http://localhost:8181/messenger/${currentRecipientId}`, {
             headers: { 'Authorization': `Bearer ${document.getElementById('jwt-token').value}` }
         }).then(response => response.json()).then(messages => {
             document.getElementById('messages').innerHTML = messages.map(msg => `
@@ -101,6 +146,10 @@
                 statusIndicator.className = activity.online ? 'online' : 'offline';
             }
         });
+    }
+
+    function getDialogId(user1Id, user2Id) {
+        return user1Id < user2Id ? `${user1Id}_${user2Id}` : `${user2Id}_${user1Id}`;
     }
 </script>
 </body>

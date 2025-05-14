@@ -39,15 +39,8 @@ public class WebSocketController {
         var savedMessage = chatMessageService.sendMessage(messageEntity);
 
         // Отправка получателю
-        messagingTemplate.convertAndSendToUser(
-                recipient.getUsername(),
-                "/queue/messages",
-                chatMessageMapper.fromEntityToResponse(savedMessage)
-        );
-
-        messagingTemplate.convertAndSendToUser(
-                sender.getUsername(),
-                "/queue/messages",
+        messagingTemplate.convertAndSend(
+                "/topic/messenger/" + getDialogId(sender.getId(), recipient.getId()),
                 chatMessageMapper.fromEntityToResponse(savedMessage)
         );
 
@@ -99,9 +92,9 @@ public class WebSocketController {
         );
     }
 
-//    private String getDialogId(Long user1, Long user2){
-//        return user1 < user2 ?
-//                user1.toString() + '_' + user2 :
-//                user2.toString() + '_' + user1;
-//    }
+    private String getDialogId(Long user1, Long user2){
+        return user1 < user2 ?
+                user1.toString() + '_' + user2 :
+                user2.toString() + '_' + user1;
+    }
 }
