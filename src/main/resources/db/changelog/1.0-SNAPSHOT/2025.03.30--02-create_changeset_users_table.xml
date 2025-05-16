@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="create-table-users" author="takhirchik">
+        <createTable tableName="users">
+            <column autoIncrement="true" name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nickname" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="bio" type="text"/>
+            <column name="login" type="varchar(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="avatar_url" type="varchar(512)"/>
+            <column name="small_thumbnail_url" type="varchar(512)"/>
+            <column name="medium_thumbnail_url" type="varchar(512)"/>
+            <column name="large_thumbnail_url" type="varchar(512)"/>
+            <column name="role_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="users"
+                baseColumnNames="role_id"
+                referencedTableName="roles"
+                referencedColumnNames="id"
+                constraintName="fk_user_role"
+                onDelete="RESTRICT"/>
+
+        <createIndex tableName="users" indexName="idx_user_login" unique="true">
+            <column name="login"/>
+        </createIndex>
+
+        <createIndex tableName="users" indexName="idx_user_email" unique="true">
+            <column name="email"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

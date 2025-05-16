@@ -1,104 +1,217 @@
 package com.warlock.service;
 
+import com.warlock.domain.Extinct;
+import com.warlock.domain.StandStats;
+import com.warlock.domain.User;
+import com.warlock.exceptions.AccessToResourcesException;
+import com.warlock.repository.StandStatsRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.warlock.domain.StandCategory;
 import com.warlock.domain.Stand;
-import com.warlock.model.request.CreateStandCategoryRequest;
-import com.warlock.model.request.CreateStandRequest;
-import com.warlock.model.response.StandCategoryResponse;
-import com.warlock.model.response.StandResponse;
 import com.warlock.repository.StandRepository;
-import com.warlock.repository.StandCategoryRepository;
 
 import jakarta.persistence.EntityNotFoundException;
+
+import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "stands")
 public class StandServiceImpl implements StandService {
+
+    @Autowired
     private final StandRepository standRepository;
-    private final StandCategoryRepository standCategoryRepository;
 
-    //Получаем весь список пользователей
+    @Autowired
+    private final ExtinctService extinctService;
+
+    @Autowired
+    private final StandStatsRepository standStatsRepository;
+
+    /**
+     * найти все стенды
+     *
+     * @return все существующие стенды
+     */
+    @Cacheable(key = "'all'")
     @Override
-    public @NonNull List<StandResponse> findAll() {
-        return standRepository.findAll()
-                .stream()
-                .map(this::buildStandResponse)
-                .collect(Collectors.toList());
+    public @NonNull List<Stand> findAll() {
+        return standRepository.findAll();
     }
 
-    //Получаем пользователя по id
+    /**
+     * найти стенд по ID
+     *
+     * @param standId ID стенда
+     * @return стэнд
+     */
+    @Cacheable(key = "#standId")
     @Override
-    public @NonNull StandResponse findById(@NonNull Long standId) {
+    public @NonNull Stand findById(@NonNull Long standId) {
         return standRepository.findById(standId)
-                .map(this::buildStandResponse)
                 .orElseThrow(() -> new EntityNotFoundException("Stand " + standId + " is not found"));
     }
 
-    //Создаем пользователя
+    @CachePut(key = "#result.id")
     @Override
     @Transactional
-    public @NonNull StandResponse createStand(@NonNull CreateStandRequest request) {
-        String categoryName = request.getStandCategory().getCategoryName();
-        StandCategory standCategory = standCategoryRepository.findByCategoryName(categoryName)
-                .orElseThrow(() -> new EntityNotFoundException("Category " + categoryName + " is not found"));
-        Stand stand = buildStandRequest(request, standCategory);
-        return buildStandResponse(standRepository.save(stand));
+    public @NonNull Stand save(@NonNull Stand stand){
+        return standRepository.save(stand);
     }
 
-    //Обновляем пользователя по id
+    /**
+     * создать стенд
+     *
+     * @param request стенд
+     * @return созданный стенд
+     */
     @Override
-    @Transactional
-    public @NonNull StandResponse update(@NonNull Long standId, @NonNull CreateStandRequest request) {
-        Stand stand = standRepository.findById(standId)
-                .orElseThrow(() -> new EntityNotFoundException("Stand " + standId + " is not found"));
+    public @NonNull Stand createStand(@NonNull Stand request) {
+        request.setCreatedAt(LocalDate.now());
+        request.setViews(0);
+        log.info("User {} creating stand {}", request.getCreator(), request);
+        return save(request);
+    }
+
+    /**
+     * обновить стенд
+     *
+     * @param standId ID стенда который нужно обновить
+     * @param request новые данные стенда
+     * @return обновлённый стенд
+     */
+    @Override
+    public @NonNull Stand update(@NonNull Long standId, @NonNull Stand request) {
+        Stand stand = findById(standId);
+        log.info("User {} updating stand {} -> {}", stand.getCreator(), stand, request);
         standUpdate(stand, request);
-        if (stand.getStandCategory() != null){
-            String categoryName = stand.getStandCategory().getCategoryName();
-            StandCategory standCategory = standCategoryRepository.findByCategoryName(categoryName)
-                    .orElseThrow(() -> new EntityNotFoundException(("Category " + categoryName + " is not found")));
-            stand.setStandCategory(standCategory);
-        }
-        return buildStandResponse(standRepository.save(stand));
+
+        return save(stand);
     }
 
-    //Удаляем пользователя по id
+    /**
+     * удалить стенд по ID
+     *
+     * @param standId ID стенда
+     */
+    @CacheEvict(key = "#standId")
     @Override
     public void delete(@NonNull Long standId) {
+        log.info("Deleting stand with id {}", standId);
         standRepository.deleteById(standId);
     }
 
-    private StandResponse buildStandResponse(@NonNull Stand stand) {
-        return new StandResponse()
-                .setId(stand.getId())
-                .setStandName(stand.getStandName())
-                .setDescription(stand.getDescription())
-                .setStandCategory(new StandCategoryResponse()
-                        .setId(stand.getStandCategory().getId())
-                        .setCategoryName(stand.getStandCategory().getCategoryName()));
-    }
-
-    private Stand buildStandRequest(@NonNull CreateStandRequest request, @NonNull StandCategory standCategory) {
-        return new Stand()
-                .setStandName(request.getStandName())
-                .setDescription(request.getDescription())
-                .setStandCategory(standCategory);
-    }
-
-    private void standUpdate(@NonNull Stand stand, @NonNull CreateStandRequest request) {
+    private void standUpdate(@NonNull Stand stand, @NonNull Stand request) {
         ofNullable(request.getStandName()).map(stand::setStandName);
         ofNullable(request.getDescription()).map(stand::setDescription);
+    }
 
-        CreateStandCategoryRequest standCategoryRequest = request.getStandCategory();
-        if (standCategoryRequest != null) {
-            ofNullable(standCategoryRequest.getCategoryName()).map(stand.getStandCategory()::setCategoryName);
+    /**
+     * увеличить число просмотров
+     *
+     * @param standId ID стенда
+     */
+    @Override
+    @Transactional
+    public void incrementViews(@NonNull Long standId){
+        Stand stand = findById(standId);
+        stand.setViews(stand.getViews() + 1);
+        save(stand);
+        var date = LocalDate.now();
+        StandStats standStats = standStatsRepository.findByStandAndDate(stand, date)
+                .orElse(null);
+        if (standStats == null){
+            standStats = new StandStats();
+            standStats.setStand(stand);
+            standStats.setDate(date);
+            standStats.setViews(1);
+        } else {
+            standStats.setViews(standStats.getViews() + 1);
         }
+        standStatsRepository.save(standStats);
+
+    }
+
+    /**
+     * найти все экспонаты в стенде
+     *
+     * @param stand стенд
+     * @return список экспонатов
+     */
+    @Cacheable(key = "'extincts:' + #stand.id")
+    @Override
+    public @NonNull List<Extinct> findAllExtincts(@NonNull Stand stand){
+        return extinctService.findAllExtincts(stand);
+    }
+
+    /**
+     * проверка на создателя
+     *
+     * @param standId ID стенда
+     * @param user пользователь
+     */
+    @Override
+    public void isCreator(@NonNull Long standId, @NonNull User user){
+        Stand stand = findById(standId);
+        if (!stand.getCreator().equals(user)){
+            throw new AccessToResourcesException("Access denied");
+        }
+    }
+
+    /**
+     * добавить экспонат
+     *
+     * @param standId ID стенда
+     * @param extinctId ID экспоната
+     */
+    @CacheEvict(key = "'extincts:' + #standId")
+    @Override
+    public void addExtinct(@NonNull Long standId, @NonNull Long extinctId){
+        Stand stand = findById(standId);
+        Extinct extinct = extinctService.findById(extinctId);
+
+        if (!stand.getCreator().equals(extinct.getCreator())){
+            throw new RuntimeException("Cannot to add Extinct with another creator");
+        }
+        if (extinct.getStand() != null){
+            throw new RuntimeException("Extinct already on stand");
+        }
+        log.info("Adding extinct {} to a stand {}", extinct, stand);
+        stand.getExtincts().add(extinct);
+        extinct.setStand(stand);
+        save(stand);
+        extinctService.save(extinct);
+    }
+
+    /**
+     * удалить экспонат
+     *
+     * @param standId ID стенда
+     * @param extinctId ID экспоната
+     */
+    @CacheEvict(key = "'extincts:' + #standId")
+    @Override
+    public void deleteExtinct(@NonNull Long standId, @NonNull Long extinctId){
+        Stand stand = findById(standId);
+        Extinct extinct = extinctService.findById(extinctId);
+        if (!stand.getExtincts().contains(extinct)){
+            throw new RuntimeException("Extinct not on this stand");
+        }
+        log.info("Deleting extinct {} from a stand {}", extinct, stand);
+        stand.getExtincts().remove(extinct);
+        extinct.setStand(null);
+        save(stand);
     }
 }

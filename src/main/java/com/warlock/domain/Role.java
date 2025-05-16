@@ -1,10 +1,14 @@
 package com.warlock.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.warlock.domain.common.BaseDomain;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+
 import java.util.Objects;
 
 @Getter
@@ -12,11 +16,8 @@ import java.util.Objects;
 @Accessors(chain = true)
 @Entity
 @Table(name="roles")
-public class Role {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Role extends BaseDomain implements GrantedAuthority {
 
     @Column(name="name", nullable=false, unique=true)
     private String name;
@@ -37,8 +38,12 @@ public class Role {
     @Override
     public String toString(){
         return "Role{" +
-                "id=" + this.id +
-                ", name=" + this.name +
+                "name=" + this.name +
                 "}";
+    }
+
+    @Override
+    public String getAuthority() {
+        return getName();
     }
 }

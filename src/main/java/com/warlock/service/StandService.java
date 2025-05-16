@@ -1,23 +1,38 @@
 package com.warlock.service;
 
-import com.warlock.model.response.StandResponse;
-import com.warlock.model.request.CreateStandRequest;
+import com.warlock.domain.Extinct;
+import com.warlock.domain.Stand;
+import com.warlock.domain.User;
 import lombok.NonNull;
 
 import java.util.List;
 
 public interface StandService {
     @NonNull
-    List<StandResponse> findAll();
+    List<Stand> findAll();
 
     @NonNull
-    StandResponse findById(@NonNull Long standId);
+    Stand findById(@NonNull Long standId);
 
     @NonNull
-    StandResponse createStand(@NonNull CreateStandRequest request);
+    Stand save(@NonNull Stand stand);
 
     @NonNull
-    StandResponse update(@NonNull Long standId, @NonNull CreateStandRequest request);
+    Stand createStand(@NonNull Stand request);
+
+    @NonNull
+    Stand update(@NonNull Long standId, @NonNull Stand request);
 
     void delete(@NonNull Long standId);
+
+    void incrementViews(@NonNull Long standId);
+
+    @NonNull
+    List<Extinct> findAllExtincts(@NonNull Stand stand);
+
+    void isCreator(@NonNull Long standId, @NonNull User user);
+
+    void addExtinct(@NonNull Long standId, @NonNull Long extinctId);
+
+    void deleteExtinct(@NonNull Long standId, @NonNull Long extinctId);
 }

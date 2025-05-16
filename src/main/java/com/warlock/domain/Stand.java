@@ -1,12 +1,14 @@
 package com.warlock.domain;
 
+import com.warlock.domain.common.BaseDomain;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import jakarta.persistence.*;
 
-import javax.swing.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,11 +17,7 @@ import java.util.Objects;
 @Accessors(chain = true)
 @Entity
 @Table(name="stands")
-public class Stand {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Stand extends BaseDomain {
 
     @Column(name = "stand_name", nullable = false)
     private String standName;
@@ -27,33 +25,44 @@ public class Stand {
     @Column(name = "description")
     private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "stand_category_id", nullable = false)
-    private StandCategory standCategory;
+    @Column(name = "views")
+    private Integer views = 0;
 
-    @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column(name = "created_at", updatable = false)
+    private LocalDate createdAt = LocalDate.now();
+
+    @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Extinct> extincts;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id", nullable = false)
+    private User creator;
+
+    @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StandStats> standStats = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Stand stand = (Stand) o;
-        return standName.equals(stand.standName) && description.equals(stand.description);
+        return standName.equals(stand.standName) && description.equals(stand.description) &&
+                createdAt.equals(stand.createdAt) && creator.equals(stand.creator);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(standName, description);
+        return Objects.hash(standName, description, createdAt, creator);
     }
 
     @Override
     public String toString(){
-        return "StandCategory{" +
-                "id=" + this.id +
-                ", stand_name" + this.standName +
+        return "Stand{" +
+                "stand_name" + this.standName +
                 ", description=" + this.description +
-                ", stand_category=" + this.standCategory +
+                ", views=" + this.views +
+                ", createdAt=" + this.createdAt +
+                ", creator=" + this.creator +
                 "}";
     }
 }

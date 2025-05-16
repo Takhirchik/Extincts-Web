@@ -1,120 +1,210 @@
 package com.warlock.service;
 
+import jakarta.persistence.EntityExistsException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.warlock.domain.Role;
 import com.warlock.domain.User;
-import com.warlock.model.request.CreateRoleRequest;
-import com.warlock.model.request.CreateUserRequest;
-import com.warlock.model.response.RoleResponse;
-import com.warlock.model.response.UserResponse;
 import com.warlock.repository.UserRepository;
-import com.warlock.repository.RoleRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "users")
 public class UserServiceImpl implements UserService {
 
+    @Autowired
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
 
-    private static final String DEFAULT_ROLE = "user";
+    @Autowired
+    private final RoleService roleService;
 
-    //Получаем весь список пользователей
+    private static final String ADMIN_ROLE = "ROLE_ADMIN";
+
+    /**
+     * Поиск всех пользователей
+     *
+     * @return список User
+     */
+    @Cacheable(key = "'all'")
     @Override
-    public @NonNull List<UserResponse> findAll() {
-        return userRepository.findAll()
-                .stream()
-                .map(this::buildUserResponse)
-                .collect(Collectors.toList());
+    public @NonNull List<User> findAll() {
+        return userRepository.findAll();
     }
 
-    //Получаем пользователя по id
+    /**
+     * Поиск пользователя по id
+     *
+     * @param userId id-идентификатор пользователя
+     * @return User
+     */
+    @Cacheable(key = "#userId")
     @Override
-    public @NonNull UserResponse findById(@NonNull Long userId) {
+    public @NonNull User findById(@NonNull Long userId) {
         return userRepository.findById(userId)
-                .map(this::buildUserResponse)
                 .orElseThrow(() -> new EntityNotFoundException("User " + userId + " is not found"));
     }
 
-    //Создаем пользователя
+    /**
+     * Сохранение пользователя
+     *
+     * @param user пользователь
+     * @return сохранённый пользователь
+     */
+    @CachePut(key = "#result.id")
     @Override
     @Transactional
-    public @NonNull UserResponse createUser(@NonNull CreateUserRequest request) {
-        Role role;
-        if (request.getRole() == null){
-            role = roleRepository.findByName(DEFAULT_ROLE)
-                    .orElseThrow(() -> new EntityNotFoundException("Role " + DEFAULT_ROLE + " is not found"));
-        } else{
-            String roleName = request.getRole().getName();
-            role = roleRepository.findByName(roleName)
-                    .orElseThrow(() ->
-                            new EntityNotFoundException("Role " + roleName + " is not found"));
+    public @NonNull User save(@NonNull User user){
+        return userRepository.save(user);
+    }
+
+    /**
+     * Создание пользователя
+     *
+     * @param request пользователь
+     * @return созданный пользователь
+     */
+    @Override
+    public @NonNull User create(@NonNull User request){
+        if (userRepository.existsByLogin(request.getLogin())){
+            throw new EntityExistsException("User with login " + request.getLogin() + " already exists");
         }
-        User user = buildUserRequest(request, role);
-        return buildUserResponse(userRepository.save(user));
+        if (userRepository.existsByEmail(request.getEmail())){
+            throw new EntityExistsException("User with email " + request.getEmail() + " already exists");
+        }
+        log.info("Trying to save user: {}", request);
+        return save(request);
     }
 
-    //Обновляем пользователя по id
+    /**
+     * Обновление пользователя
+     *
+     * @param userId id-пользователя, которого нужно обновить
+     * @param request данные для обновления
+     * @return User
+     */
     @Override
     @Transactional
-    public @NonNull UserResponse update(@NonNull Long userId, @NonNull CreateUserRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User " + userId + " is not found"));
+    public @NonNull User update(@NonNull Long userId, @NonNull User request) {
+        User user = findById(userId);
+        log.info("Trying to update user: {} -> {}", user, request);
         userUpdate(user, request);
-        if (user.getRole() != null){
-            String roleName = user.getRole().getName();
-            Role role = roleRepository.findByName(roleName)
-                    .orElseThrow(() -> new EntityNotFoundException(("Role " + roleName + " is not found")));
-            user.setRole(role);
-        }
-        return buildUserResponse(userRepository.save(user));
+        return save(user);
     }
 
-    //Удаляем пользователя по id
+    /**
+     * Удаление пользователя
+     *
+     * @param userId id удаляемого пользователя
+     */
+    @CacheEvict(key = "#userId")
     @Override
     public void delete(@NonNull Long userId) {
+        log.info("Deleting user with id: {}", userId);
         userRepository.deleteById(userId);
     }
 
-    private UserResponse buildUserResponse(@NonNull User user) {
-        return new UserResponse()
-                .setId(user.getId())
-                .setNickname(user.getNickname())
-                .setLogin(user.getLogin())
-                .setPassword(user.getPassword())
-                .setEmail(user.getEmail())
-                .setRole(new RoleResponse()
-                        .setId(user.getRole().getId())
-                        .setName(user.getRole().getName()));
-    }
-
-    private User buildUserRequest(@NonNull CreateUserRequest request, @NonNull Role role) {
-        return new User()
-                .setNickname(request.getNickname())
-                .setLogin(request.getLogin())
-                .setPassword(request.getPassword())
-                .setEmail(request.getEmail())
-                .setRole(role);
-    }
-
-    private void userUpdate(@NonNull User user, @NonNull CreateUserRequest request) {
+    /**
+     * Вспомогательный метод обновления
+     *
+     * @param user пользователь из БД
+     * @param request данные для обновления
+     */
+    private void userUpdate(@NonNull User user, @NonNull User request) {
         ofNullable(request.getNickname()).map(user::setNickname);
         ofNullable(request.getLogin()).map(user::setLogin);
         ofNullable(request.getPassword()).map(user::setPassword);
         ofNullable(request.getEmail()).map(user::setEmail);
+        ofNullable(request.getBio()).map(user::setBio);
+        ofNullable(request.getUrlImage()).map(user::setUrlImage);
+        ofNullable(request.getSmallThumbnailUrl()).map(user::setSmallThumbnailUrl);
+        ofNullable(request.getMediumThumbnailUrl()).map(user::setMediumThumbnailUrl);
+        ofNullable(request.getLargeThumbnailUrl()).map(user::setLargeThumbnailUrl);
+    }
 
-        CreateRoleRequest roleRequest = request.getRole();
-        if (roleRequest != null) {
-            ofNullable(roleRequest.getName()).map(user.getRole()::setName);
+    /**
+     * Назначение роли пользователю
+     *
+     * @param userId id-пользователя
+     * @return User
+     */
+    @Override
+    @Transactional
+    public @NonNull User assignRole(@NonNull Long userId){
+        User user = findById(userId);
+        Role role = roleService.findByName(ADMIN_ROLE);
+        log.info("Assign {} to user {}", role, user);
+        user.setRole(role);
+        return save(user);
+    }
+
+    /**
+     * Найти пользователя по логину (нужен для UserDetailsService)
+     *
+     * @param login логин пользователя
+     * @return User
+     * @throws UsernameNotFoundException ошибка нахождения пользователя
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public @NonNull User getByLogin(@NonNull String login) throws UsernameNotFoundException {
+        return userRepository.findByLogin(login)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with login: " + login));
+    }
+
+    /**
+     * Конструктор сервиса
+     *
+     * @return UserDetailsService
+     */
+    public UserDetailsService userDetailsService(){
+        return this::getByLogin;
+    }
+
+    /**
+     * Получить текущего пользователя
+     *
+     * @return User
+     */
+    @Override
+    public @NonNull User getCurrentUser(){
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new IllegalStateException("User not authenticated");
         }
+        return getByLogin(auth.getName());
+    }
+
+    @Override
+    public @NonNull User updateUserImage(
+            @NonNull Long userId,
+            @NonNull String originalUrl,
+            @NonNull String smallThumbnailUrl,
+            @NonNull String mediumThumbnailUrl,
+            @NonNull String largeThumbnailUrl
+    ){
+        log.info("Uploading image URL's to user with id {}", userId);
+        var user = findById(userId)
+                .setUrlImage(originalUrl)
+                .setSmallThumbnailUrl(smallThumbnailUrl)
+                .setMediumThumbnailUrl(mediumThumbnailUrl)
+                .setLargeThumbnailUrl(largeThumbnailUrl);
+        return save(user);
     }
 }

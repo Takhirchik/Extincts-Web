@@ -1,0 +1,15 @@
+services:
+  postgres-db-test:
+    image: postgres:latest
+    container_name: postgres-db-test
+    environment:
+      POSTGRES_DB: extincts-web-db-test
+      POSTGRES_USER: extinct-user
+      POSTGRES_PASSWORD: gfg
+    volumes:
+      - postgres-db-test_volume:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    restart: unless-stopped
+volumes:
+  postgres-db-test_volume:

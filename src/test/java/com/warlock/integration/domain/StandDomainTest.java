@@ -1,0 +1,40 @@
+package com.warlock.integration.domain;
+
+import com.warlock.domain.Stand;
+import com.warlock.domain.StandStats;
+import com.warlock.integration.domain.abstracts.AbstractDomainTest;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class StandDomainTest extends AbstractDomainTest {
+
+    @Test
+    void shouldSaveStandWithAllFields() {
+        Stand stand = createTestStand();
+        Stand saved = entityManager.persistFlushFind(stand);
+        
+        assertThat(saved.getId()).isNotNull();
+        assertThat(saved.getStandName()).isEqualTo("Test Stand");
+    }
+
+    @Test
+    void shouldCascadeStats() {
+        Stand stand = createTestStand();
+        entityManager.persistAndFlush(stand);
+
+        StandStats stats = new StandStats()
+                .setDate(LocalDate.now())
+                .setViews(50)
+                .setStand(stand);
+
+        // Модифицируем существующую коллекцию вместо замены
+        stand.getStandStats().add(stats);
+
+        Stand saved = entityManager.persistFlushFind(stand);
+
+        assertThat(saved.getStandStats()).hasSize(1);
+    }
+}

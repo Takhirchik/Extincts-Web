@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <include file="2025.03.16--01-create_changeset_roles_table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.03.30--01-insert_changeset_roles_table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.03.30--02-create_changeset_users_table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.03.30--03-create_changeset_stands_table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.03.30--04-create_changeset_extincts_table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.03.31--01-alter_tsvector_changeset.xml" relativeToChangelogFile="true"/>
+    <include file="2025.03.31--02-create_triggers_tsvector_changeset.xml" relativeToChangelogFile="true"/>
+    <include file="2025.03.31--03-update_search_records_changeset.xml" relativeToChangelogFile="true"/>
+    <include file="2025.04.03--01-insert_changeset_users_table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.04.03--02-create_changeset_stand_stats_table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.04.03--03-create_changeset_extinct_stats_table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.04.16--01-create_changeset_temp_images_table.xml" relativeToChangelogFile="true"/>
+    <include file="2025.05.02--01-create_changeset_chatmessage_table.xml" relativeToChangelogFile="true"/>
+</databaseChangeLog>

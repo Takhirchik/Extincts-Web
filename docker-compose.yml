@@ -1,0 +1,68 @@
+services:
+  extincts-web-backend:
+    image: extincts:1.0-SNAPSHOT
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: extincts-web-backend
+    ports:
+      - "8181:8181"
+    depends_on:
+      - postgres-db
+      - redis
+      - minio-s3
+    environment:
+      SERVER_PORT: 8181
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/extincts-web-db
+      MINIO_URL: http://minio-s3:9000
+      SPRING_REDIS_HOST: redis
+
+  postgres-db:
+    image: postgres:latest
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: extincts-web-db
+      POSTGRES_USER: extinct-user
+      POSTGRES_PASSWORD: gfg
+    volumes:
+      - postgres-db_volume:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  minio-s3:
+    image: minio/minio
+    container_name: minio-storage
+    environment:
+      MINIO_ROOT_USER: minio_admin
+      MINIO_ROOT_PASSWORD: minio_admin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  postgres-db_volume:
+  minio_data:
+  redis_data:

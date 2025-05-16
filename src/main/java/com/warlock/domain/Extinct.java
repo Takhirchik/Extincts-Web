@@ -1,11 +1,14 @@
 package com.warlock.domain;
 
+import com.warlock.domain.common.BaseDomain;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,10 +17,7 @@ import java.util.Objects;
 @Accessors(chain = true)
 @Entity
 @Table(name="extincts")
-public class Extinct {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Extinct extends BaseDomain {
 
     @Column(name = "extinct_name", nullable = false)
     private String extinctName;
@@ -25,33 +25,63 @@ public class Extinct {
     @Column(name = "description")
     private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "stand_id", nullable = false)
+    @Column(name = "views")
+    private Integer views = 0;
+
+    @Column(name = "likes")
+    private Integer likes = 0;
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDate createdAt = LocalDate.now();
+
+    @Column(name = "url_image")
+    private String urlImage;
+
+    // Миниатюры
+    @Column(name = "small_thumbnail_url")
+    private String smallThumbnailUrl;
+
+    @Column(name = "medium_thumbnail_url")
+    private String mediumThumbnailUrl;
+
+    @Column(name = "large_thumbnail_url")
+    private String largeThumbnailUrl;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "stand_id")
     private Stand stand;
 
-    @OneToMany(mappedBy = "extinct", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ExtinctImage> extinctImages;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id", nullable = false)
+    private User creator;
+
+    @OneToMany(mappedBy = "extinct", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ExtinctStats> extinctStats = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Extinct extinct = (Extinct) o;
-        return extinctName.equals(extinct.extinctName) && description.equals(extinct.description);
+        return extinctName.equals(extinct.extinctName) && description.equals(extinct.description) &&
+                createdAt.equals(extinct.createdAt) && creator.equals(extinct.creator);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(extinctName, description);
+        return Objects.hash(extinctName, description, createdAt, creator);
     }
 
     @Override
     public String toString(){
         return "Extinct{" +
-                "id=" + this.id +
-                ", extinctName=" + this.extinctName +
+                "extinctName=" + this.extinctName +
                 ", description=" + this.description +
+                ", views=" + this.views +
+                ", likes=" + this.likes +
+                ", createdAt=" + this.createdAt +
                 ", stand=" + this.stand +
+                ", creator=" + this.creator +
                 "}";
     }
 }

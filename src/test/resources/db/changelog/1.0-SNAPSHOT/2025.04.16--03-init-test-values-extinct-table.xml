@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="init-test-values-extincts-table" author="takhirchik">
+        <!-- Тираннозавр -->
+        <insert tableName="extincts">
+            <column name="extinct_name" value="Тираннозавр Рекс"/>
+            <column name="description" value="Крупнейший хищник мелового периода, до 12 метров в длину"/>
+            <column name="creator_id" valueComputed="(SELECT id FROM users WHERE login = 'paleontologist')"/>
+            <column name="stand_id" valueComputed="(SELECT id FROM stands WHERE stand_name = 'Эра Динозавров')"/>
+            <column name="created_at" valueComputed="NOW() - INTERVAL '2 days'"/>
+            <column name="url_image" value="/images/t-rex.jpg"/>
+            <column name="small_thumbnail_url" value="/thumbs/small/t-rex.jpg"/>
+            <column name="medium_thumbnail_url" value="/thumbs/medium/t-rex.jpg"/>
+            <column name="large_thumbnail_url" value="/thumbs/large/t-rex.jpg"/>
+        </insert>
+
+        <!-- Мамонт -->
+        <insert tableName="extincts">
+            <column name="extinct_name" value="Шерстистый Мамонт"/>
+            <column name="description" value="Крупное травоядное млекопитающее ледникового периода"/>
+            <column name="creator_id" valueComputed="(SELECT id FROM users WHERE login = 'admin')"/>
+            <column name="stand_id" valueComputed="(SELECT id FROM stands WHERE stand_name = 'Ледниковый Период')"/>
+            <column name="created_at" valueComputed="NOW() - INTERVAL '1 day'"/>
+            <column name="url_image" value="/images/mammoth.jpg"/>
+            <column name="small_thumbnail_url" value="/thumbs/small/mammoth.jpg"/>
+            <column name="medium_thumbnail_url" value="/thumbs/medium/mammoth.jpg"/>
+            <column name="large_thumbnail_url" value="/thumbs/large/mammoth.jpg"/>
+        </insert>
+
+        <!-- Саблезубый тигр -->
+        <insert tableName="extincts">
+            <column name="extinct_name" value="Саблезубый Тигр"/>
+            <column name="description" value="Среднего размера хищник семейства кошачих ледникового периода"/>
+            <column name="creator_id" valueComputed="(SELECT id FROM users WHERE login = 'admin')"/>
+            <column name="stand_id" valueComputed="(SELECT id FROM stands WHERE stand_name = 'Ледниковый Период')"/>
+            <column name="created_at" valueComputed="NOW() - INTERVAL '1 day'"/>
+            <column name="url_image" value="/images/mammoth.jpg"/>
+            <column name="small_thumbnail_url" value="/thumbs/small/mammoth.jpg"/>
+            <column name="medium_thumbnail_url" value="/thumbs/medium/mammoth.jpg"/>
+            <column name="large_thumbnail_url" value="/thumbs/large/mammoth.jpg"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

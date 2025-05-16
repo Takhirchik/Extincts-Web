@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="create_tsvector_functions" author="takhirchik" dbms="postgresql">
+        <createProcedure>
+            CREATE OR REPLACE FUNCTION stands_search_vector_update() RETURNS trigger AS $STANDS$
+            BEGIN
+                NEW.search_vector :=
+                    setweight(to_tsvector('russian', coalesce(NEW.stand_name, '')), 'A') ||
+                    setweight(to_tsvector('russian', coalesce(NEW.description, '')), 'B');
+                RETURN NEW;
+            END;
+            $STANDS$ LANGUAGE plpgsql;
+        </createProcedure>
+
+        <createProcedure>
+            CREATE OR REPLACE FUNCTION extincts_search_vector_update() RETURNS trigger AS $EXTINCTS$
+            BEGIN
+                NEW.search_vector :=
+                    setweight(to_tsvector('russian', coalesce(NEW.extinct_name, '')), 'A') ||
+                    setweight(to_tsvector('russian', coalesce(NEW.description, '')), 'B');
+                RETURN NEW;
+            END;
+            $EXTINCTS$ LANGUAGE plpgsql;
+        </createProcedure>
+
+        <createProcedure>
+            CREATE OR REPLACE FUNCTION users_search_vector_update() RETURNS trigger AS $USERS$
+            BEGIN
+                NEW.search_vector :=
+                    setweight(to_tsvector('russian', coalesce(NEW.nickname, '')), 'A') ||
+                    setweight(to_tsvector('russian', coalesce(NEW.bio, '')), 'B');
+                RETURN NEW;
+            END;
+            $USERS$ LANGUAGE plpgsql;
+        </createProcedure>
+    </changeSet>
+
+    <changeSet id="create_triggers" author="takhirchik" dbms="postgresql">
+        <sql>
+            CREATE TRIGGER stands_search_vector_trigger
+            BEFORE INSERT OR UPDATE ON stands
+            FOR EACH ROW EXECUTE FUNCTION stands_search_vector_update();
+
+            CREATE TRIGGER extincts_search_vector_trigger
+            BEFORE INSERT OR UPDATE ON extincts
+            FOR EACH ROW EXECUTE FUNCTION extincts_search_vector_update();
+
+            CREATE TRIGGER users_search_vector_trigger
+            BEFORE INSERT OR UPDATE ON users
+            FOR EACH ROW EXECUTE FUNCTION users_search_vector_update();
+        </sql>
+    </changeSet>
+</databaseChangeLog>

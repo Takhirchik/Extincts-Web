@@ -2,25 +2,72 @@ server:
   port: 8181
 
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/extincts-web-db
-    username: extinct-user
-    password: gfg
-    driver-class-name: org.postgresql.Driver
+  profiles:
+    active: prod
   jpa:
-    hibernate:
-      ddl-auto: none
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-    show_sql: true
   mvc:
     pathmatch:
-      matching-strategy: ANT_PATH_MATCHER
+      matching-strategy: PATH_PATTERN_PARSER
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+  task:
+    scheduling:
+      pool:
+        size: 5
+      shutdown:
+        await-termination: true
+        await-termination-period: 60s
+  redis:
+    host: localhost
+    port: 6379
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000
 
-  liquibase:
+token:
+  signing:
+    key: dc9086109fec08821a1e93528a25e6785d252db807a58b2d402d9cb5128efb84
+    expiration: 86400000
+
+minio:
+   url: http://localhost:9000
+   bucket-name: images
+   access-key: minio_admin
+   secret-key: minio_admin
+   secure: false
+   max-retries: 5
+
+image:
+  small_thumbnail:
+    size: 150
+  medium_thumbnail:
+    size: 300
+  large_thumbnail:
+    size: 600
+  temp-storage-duration: 86400000
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui
     enabled: true
-    drop-first: false
-    change-log: classpath:db/changelog/db.changelog-master.xml
-    default-schema: public
+  cors:
+    enabled: true
+  packagesToScan: com.warlock
+
+logging:
+  level:
+    org:
+      springdoc: DEBUG
+      springframework:
+        cache: TRACE
+        data:
+          redis: DEBUG
