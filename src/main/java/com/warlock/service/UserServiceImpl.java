@@ -80,6 +80,7 @@ public class UserServiceImpl implements UserService {
      * @param request пользователь
      * @return созданный пользователь
      */
+    @CacheEvict(key = "'all'")
     @Override
     public @NonNull User create(@NonNull User request){
         if (userRepository.existsByLogin(request.getLogin())){

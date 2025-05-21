@@ -77,6 +77,7 @@ public class ExtinctServiceImpl implements ExtinctService{
      * @param request запрос с экспонатом
      * @return созданный экспонат
      */
+    @CacheEvict(key = "'all'")
     @Override
     public @NonNull Extinct createExtinct(@NonNull Extinct request) {
         request.setCreatedAt(LocalDate.now());

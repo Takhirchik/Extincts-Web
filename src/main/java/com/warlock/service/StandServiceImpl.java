@@ -77,6 +77,7 @@ public class StandServiceImpl implements StandService {
      * @param request стенд
      * @return созданный стенд
      */
+    @CacheEvict(key = "'all'")
     @Override
     public @NonNull Stand createStand(@NonNull Stand request) {
         request.setCreatedAt(LocalDate.now());
